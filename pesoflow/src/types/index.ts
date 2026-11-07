@@ -31,6 +31,24 @@ export interface Transaction {
 }
 
 export interface Budget {
+  id?: string
   month: string // YYYY-MM
   totalLimit: number // integer centavos
+  name?: string
+  template?: '50/30/20' | 'custom'
+  planType?: 'one-time' | 'monthly'
+  startDate?: string
+  endDate?: string
+  groups?: BudgetGroup[]
+  allocations?: {
+    needs: number
+    wants: number
+    savings: number
+  }
+}
+
+export interface BudgetGroup {
+  name: string
+  amount: number // integer centavos
+  icon?: string
 }

@@ -6,11 +6,9 @@ import AuthProvider from './features/components/authProvider'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import TransactionsPage from './pages/TransactionsPage'
 import WalletsPage from './pages/WalletsPage'
-
-const Placeholder = ({ title }: { title: string }) => (
-  <h1 className="text-2xl font-semibold text-[#202A35]">{title}</h1>
-)
+import BudgetsPage from './pages/BudgetsPage'
 
 function App() {
   return (
@@ -25,11 +23,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/transactions" element={<Placeholder title="Transactions" />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/wallets" element={<WalletsPage />} />
-              <Route path="/budgets" element={<Placeholder title="Budgets" />} />
-              <Route path="/reports" element={<Placeholder title="Reports" />} />
-              <Route path="/settings" element={<Placeholder title="Settings" />} />
+              <Route path="/budgets" element={<BudgetsPage />} />
+              <Route path="/settings" element={<h1 className="text-2xl font-semibold text-[#202A35]">Settings</h1>} />
             </Route>
           </Route>
 
