@@ -1,12 +1,14 @@
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
   signOut,
+  signInWithPopup,
   updateProfile,
 } from 'firebase/auth'
 import type { User } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
-import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore'
+import { collection, doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { auth, db } from '../../../lib/firebase'
 import { defaultCategories, defaultWallet } from '../../../lib/defaultData'
 
@@ -52,43 +54,59 @@ export async function registerWithEmail(
     createdUser = user
     await updateProfile(user, { displayName })
 
-    // One atomic write: profile + default categories + starter wallet.
-    const userRef = doc(db, 'users', user.uid)
-    const now = serverTimestamp()
-    const batch = writeBatch(db)
-
-    batch.set(userRef, {
-      displayName,
-      email,
-      currency: 'PHP',
-      createdAt: now,
-      updatedAt: now,
-    })
-
-    defaultCategories.forEach((category) => {
-      batch.set(doc(collection(userRef, 'categories')), {
-        ...category,
-        isDefault: true,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      })
-    })
-
-    batch.set(doc(collection(userRef, 'wallets')), {
-      ...defaultWallet,
-      isActive: true,
-      createdAt: now,
-      updatedAt: now,
-    })
-
-    await batch.commit()
+    await initializeUserData(user, displayName, email)
   } catch (err) {
     // Roll back the auth account if setup failed, so nobody ends up
     // with a login but no profile.
     if (createdUser) await createdUser.delete().catch(() => {})
     throw toFriendlyError(err)
   }
+}
+
+export async function signInWithGoogle(): Promise<void> {
+  try {
+    const { user } = await signInWithPopup(auth, new GoogleAuthProvider())
+    await initializeUserData(user, user.displayName ?? 'PesoFlow user', user.email ?? '')
+  } catch (err) {
+    throw toFriendlyError(err)
+  }
+}
+
+async function initializeUserData(user: User, displayName: string, email: string): Promise<void> {
+  const userRef = doc(db, 'users', user.uid)
+  const existingProfile = await getDoc(userRef)
+  if (existingProfile.exists()) return
+
+  // One atomic write: profile + default categories + starter wallet.
+  const now = serverTimestamp()
+  const batch = writeBatch(db)
+
+  batch.set(userRef, {
+    displayName,
+    email,
+    currency: 'PHP',
+    createdAt: now,
+    updatedAt: now,
+  })
+
+  defaultCategories.forEach((category) => {
+    batch.set(doc(collection(userRef, 'categories')), {
+      ...category,
+      isDefault: true,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    })
+  })
+
+  batch.set(doc(collection(userRef, 'wallets')), {
+    ...defaultWallet,
+    isActive: true,
+    createdAt: now,
+    updatedAt: now,
+  })
+
+  await batch.commit()
 }
 
 export async function logout(): Promise<void> {

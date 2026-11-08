@@ -19,11 +19,20 @@ export default function BudgetProgress({ limit, spent }: Props) {
         <span className="text-sm text-slate-500">of {formatPeso(limit)}</span>
       </div>
 
-      <div className="h-2.5 overflow-hidden rounded-full bg-[#E9EDF2]">
-        <div
-          className={`h-full rounded-full transition-all ${isOver ? 'bg-red-500' : 'bg-[#278568]'}`}
-          style={{ width: `${Math.min(percent, 100)}%` }}
-        />
+      <div
+        className="grid h-4 grid-cols-10 gap-1 border-2 border-[#19372D] bg-[#CFE3C4] p-0.5"
+        aria-label={`${Math.round(percent)}% of budget used`}
+      >
+        {Array.from({ length: 10 }, (_, index) => (
+          <span
+            key={index}
+            className={index < Math.ceil(Math.min(percent, 100) / 10)
+              ? isOver
+                ? 'bg-[#EF9580]'
+                : 'bg-[#4A9A70]'
+              : 'bg-[#FFFDF0]'}
+          />
+        ))}
       </div>
 
       <p className={`mt-3 text-sm ${isOver ? 'font-medium text-red-600' : 'text-slate-500'}`}>

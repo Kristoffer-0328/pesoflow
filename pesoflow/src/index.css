@@ -1,27 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --color-bg: #F7F8FA;
-  --color-text: #202A35;
-  --color-accent: #278568;
-  --color-secondary: #E9EDF2;
+@theme {
+  --color-sand-bg: #F2F0DF;
+  --color-sand-card: #FFFDF0;
+  --color-sand-border: #19372D;
+  --color-sand-ink: #19372D;
+  --color-sand-muted: #657369;
+  --color-sand-primary: #247354;
+  --color-sand-accent: #4A9A70;
+  --color-sand-income: #68A879;
+  --color-sand-expense: #EF9580;
+  --color-sand-warning: #F0BD60;
+  --radius-card: 0px;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
+:root {
+  font-family: 'Pixelify Sans', 'Courier New', monospace;
+  color: #19372D;
+  background: #F2F0DF;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  border-radius: 0 !important;
 }
 
 body {
+  min-width: 320px;
+  min-height: 100vh;
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: Inter, system-ui, sans-serif;
+  background-color: #F2F0DF;
+  background-image:
+    linear-gradient(rgba(25, 55, 45, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 55, 45, 0.045) 1px, transparent 1px);
+  background-size: 8px 8px;
 }
 
-@media (max-width: 767px) and (pointer: coarse) {
-  input,
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Shared retro surfaces and controls. */
+[class~="bg-white"] {
+  background-color: #FFFDF0 !important;
+}
+
+[class~="ring-slate-200"],
+[class~="border-slate-200"] {
+  border-color: #19372D !important;
+  --tw-ring-color: #19372D !important;
+}
+
+[class~="shadow-sm"],
+[class~="shadow-xl"] {
+  box-shadow: 4px 4px 0 #A9BC91 !important;
+}
+
+[class~="bg-[#F7F8FA]"] {
+  background-color: #F2F0DF !important;
+}
+
+[class~="bg-[#E9EDF2]"],
+[class~="hover:bg-[#E9EDF2]"]:hover {
+  background-color: #CFE3C4 !important;
+}
+
+[class~="text-slate-500"],
+[class~="text-slate-600"],
+[class~="text-slate-400"] {
+  color: #657369 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #247354 !important;
+  outline: 2px solid rgba(36, 115, 84, 0.25);
+  outline-offset: 1px;
+}
+
+::selection {
+  color: #FFFDF0;
+  background: #247354;
 }

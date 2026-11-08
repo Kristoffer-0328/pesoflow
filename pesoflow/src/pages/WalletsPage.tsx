@@ -6,7 +6,7 @@ import { addWallet } from '../features/auth/services/walletServices'
 import type { Wallet } from '../types'
 import { getWalletBalance } from '../utils/calculation'
 import { formatPeso, formatPesoInput, parsePesoToCentavos } from '../utils/money'
-import { getWalletCardColors } from '../utils/walletColors'
+import { getWalletCardColors, getWalletProviderColor } from '../utils/walletColors'
 import { useUserData } from '../features/auth/hooks/userData'
 import { getMonthKey } from '../utils/date'
 
@@ -41,7 +41,6 @@ const providers: Record<ProviderWalletType, string[]> = {
   'credit-card': ['BDO', 'BPI', 'Metrobank', 'UnionBank', 'RCBC', 'Security Bank'],
 }
 
-const colors = ['#278568', '#3185bd', '#e2ad27', '#d4483b', '#7c5cbf', '#0f766e']
 const inputClass =
   'w-full rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 py-2.5 text-sm outline-none transition focus:border-[#278568] focus:ring-2 focus:ring-[#278568]/20'
 const labelClass = 'mb-1 block text-sm font-medium text-[#202A35]'
@@ -256,7 +255,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
         type,
         provider: type === 'cash' ? undefined : provider,
         initialBalance,
-        color: colors[type === 'bank' ? 1 : type === 'credit-card' ? 3 : 0],
+        color: type === 'cash' ? '#278568' : getWalletProviderColor(provider),
       })
       onClose()
     } catch {
@@ -355,8 +354,12 @@ function TypeChoice({ icon: Icon, title, description, onClick }: { icon: typeof 
 
 function ProviderLogo({ provider }: { provider: string }) {
   const mark = provider === 'Maya Bank' ? 'M' : provider === 'MariBank' ? 'MB' : getBrandMark({ provider, name: provider })
+  const color = provider === 'Cash' ? '#278568' : getWalletProviderColor(provider)
   return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#278568]/10 text-xs font-bold text-[#278568] ring-1 ring-[#278568]/20">
+    <span
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xs font-bold"
+      style={{ backgroundColor: `${color}1A`, color, boxShadow: `inset 0 0 0 1px ${color}55` }}
+    >
       {mark}
     </span>
   )

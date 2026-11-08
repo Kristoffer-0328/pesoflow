@@ -51,12 +51,12 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen md:flex">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white p-4 md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r-2 border-[#19372D] bg-[#FFFDF0] p-4 md:flex">
         <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#278568] text-lg font-bold text-white">
+          <div className="flex h-10 w-10 items-center justify-center border-2 border-[#19372D] bg-[#247354] text-lg font-bold text-white shadow-[3px_3px_0_#163F33]">
             ₱
           </div>
-          <span className="text-lg font-semibold text-[#202A35]">PesoFlow</span>
+          <span className="text-lg font-semibold text-[#19372D]">PesoFlow</span>
         </div>
 
         <nav className="flex flex-col gap-1">
@@ -67,8 +67,8 @@ export default function AppLayout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                   isActive
-                    ? 'bg-[#278568]/10 text-[#278568]'
-                    : 'text-slate-600 hover:bg-[#E9EDF2]'
+                    ? 'border-2 border-[#19372D] bg-[#B9D58D] text-[#19372D] shadow-[3px_3px_0_#A9BC91]'
+                    : 'text-slate-600 hover:bg-[#CFE3C4]'
                 }`
               }
             >
@@ -81,14 +81,14 @@ export default function AppLayout() {
         <button
           type="button"
           onClick={openAddMenu}
-          className="mt-auto flex items-center justify-center gap-2 rounded-xl bg-[#278568] py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f6e55]"
+          className="mt-auto flex items-center justify-center gap-2 border-2 border-[#19372D] bg-[#4A9A70] py-2.5 text-sm font-semibold text-white shadow-[3px_3px_0_#163F33] transition hover:bg-[#247354]"
         >
           <Plus size={18} />
           Add Transaction
         </button>
 
-        <div className="mt-4 border-t border-slate-200 pt-4">
-          <p className="truncate px-2 text-sm font-medium text-[#202A35]">
+        <div className="mt-4 border-t-2 border-[#19372D] pt-4">
+          <p className="truncate px-2 text-sm font-medium text-[#19372D]">
             {user?.displayName ?? user?.email}
           </p>
           <p className="truncate px-2 text-xs text-slate-400">{user?.email}</p>
@@ -104,12 +104,12 @@ export default function AppLayout() {
       </aside>
 
       {/* Mobile header and navigation drawer */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b-2 border-[#19372D] bg-[#FFFDF0] px-4 py-3 md:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#278568] font-bold text-white">
+          <div className="flex h-8 w-8 items-center justify-center border-2 border-[#19372D] bg-[#247354] font-bold text-white">
             ₱
           </div>
-          <span className="font-semibold text-[#202A35]">PesoFlow</span>
+          <span className="font-semibold text-[#19372D]">PesoFlow</span>
         </div>
         <button
           type="button"
@@ -133,10 +133,10 @@ export default function AppLayout() {
           />
           <aside
             id="mobile-navigation-drawer"
-            className="fixed inset-y-0 right-0 z-40 flex w-[min(20rem,85vw)] flex-col bg-white p-4 shadow-xl md:hidden"
+            className="fixed inset-y-0 right-0 z-40 flex w-[min(20rem,85vw)] flex-col border-l-2 border-[#19372D] bg-[#FFFDF0] p-4 shadow-xl md:hidden"
           >
             <div className="mb-8 flex items-center justify-between">
-              <span className="text-lg font-semibold text-[#202A35]">Menu</span>
+              <span className="text-lg font-semibold text-[#19372D]">Menu</span>
               <button
                 type="button"
                 onClick={closeMobileMenu}
@@ -156,8 +156,8 @@ export default function AppLayout() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                       isActive
-                        ? 'bg-[#278568]/10 text-[#278568]'
-                        : 'text-slate-600 hover:bg-[#E9EDF2]'
+                        ? 'border-2 border-[#19372D] bg-[#B9D58D] text-[#19372D] shadow-[3px_3px_0_#A9BC91]'
+                        : 'text-slate-600 hover:bg-[#CFE3C4]'
                     }`
                   }
                 >
@@ -173,14 +173,14 @@ export default function AppLayout() {
                 closeMobileMenu()
                 openAddMenu()
               }}
-              className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#278568] py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f6e55]"
+              className="mt-4 flex items-center justify-center gap-2 border-2 border-[#19372D] bg-[#4A9A70] py-2.5 text-sm font-semibold text-white shadow-[3px_3px_0_#163F33] transition hover:bg-[#247354]"
             >
               <Plus size={18} />
               Add Transaction
             </button>
 
-            <div className="mt-auto border-t border-slate-200 pt-4">
-              <p className="truncate px-2 text-sm font-medium text-[#202A35]">
+            <div className="mt-auto border-t-2 border-[#19372D] pt-4">
+              <p className="truncate px-2 text-sm font-medium text-[#19372D]">
                 {user?.displayName ?? user?.email}
               </p>
               <p className="truncate px-2 text-xs text-slate-400">{user?.email}</p>
@@ -208,7 +208,7 @@ export default function AppLayout() {
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-[#19372D] bg-[#FFFDF0] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-around px-2 py-2">
           {mobileNav.slice(0, 2).map((item) => (
             <MobileLink key={item.to} {...item} />
@@ -218,7 +218,7 @@ export default function AppLayout() {
             type="button"
             onClick={openAddMenu}
             aria-label="Add transaction"
-            className="-mt-8 flex h-14 w-14 items-center justify-center rounded-full bg-[#278568] text-white shadow-lg ring-4 ring-[#F7F8FA]"
+            className="-mt-8 flex h-14 w-14 items-center justify-center border-2 border-[#19372D] bg-[#4A9A70] text-white shadow-[4px_4px_0_#163F33]"
           >
             <Plus size={26} />
           </button>
@@ -253,7 +253,7 @@ function MobileLink({
       to={to}
       className={({ isActive }) =>
         `flex w-16 flex-col items-center gap-1 text-[11px] font-medium ${
-          isActive ? 'text-[#278568]' : 'text-slate-500'
+          isActive ? 'text-[#247354]' : 'text-slate-500'
         }`
       }
     >

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { registerWithEmail } from '../features/auth/services/authServices'
+import { registerWithEmail, signInWithGoogle } from '../features/auth/services/authServices'
 
 const inputClass =
   'w-full rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 py-2.5 text-sm outline-none transition focus:border-[#278568] focus:ring-2 focus:ring-[#278568]/20'
@@ -37,6 +37,17 @@ export default function RegisterPage() {
     try {
       // On success, onAuthStateChanged fires and GuestRoute redirects to /dashboard.
       await registerWithEmail(name.trim(), email.trim(), password)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setError('')
+    setLoading(true)
+    try {
+      await signInWithGoogle()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')
       setLoading(false)
@@ -133,6 +144,22 @@ export default function RegisterPage() {
             className="w-full rounded-xl bg-[#278568] py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f6e55] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? 'Creating account…' : 'Create account'}
+          </button>
+
+          <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
+            <span className="h-px flex-1 bg-slate-200" />
+            or
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-[#202A35] transition hover:bg-[#F7F8FA] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span className="text-base font-bold text-[#4285F4]">G</span>
+            Continue with Google
           </button>
 
           <p className="mt-6 text-center text-sm text-slate-500">

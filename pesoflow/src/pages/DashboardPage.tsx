@@ -26,7 +26,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div role="alert" className="rounded-2xl bg-red-50 p-5 text-sm text-red-600">
+      <div role="alert" className="border-2 border-[#EF9580] bg-[#FFFDF0] p-5 text-sm text-red-600 shadow-[4px_4px_0_#EF9580]">
         Couldn&apos;t load your data: {error}
       </div>
     )
@@ -35,7 +35,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#E9EDF2] border-t-[#278568]" />
+        <div className="h-8 w-8 animate-spin border-2 border-[#CFE3C4] border-t-[#247354]" />
       </div>
     )
   }
@@ -50,13 +50,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-[#202A35]">Overview</h1>
+        <h1 className="text-2xl font-semibold text-[#19372D]">Overview</h1>
         <p className="text-sm text-slate-500">{monthLabel}</p>
       </header>
 
       {/* Available balance */}
-      <section className="rounded-2xl bg-[#278568] p-6 text-white">
-        <p className="text-sm text-white/80">Available Balance</p>
+      <section className="border-2 border-[#19372D] bg-[#2F7D5C] p-6 text-white shadow-[5px_5px_0_#163F33]">
+        <p className="text-sm text-white/80">AVAILABLE BALANCE</p>
         <p className="mt-1 text-3xl font-semibold sm:text-4xl">{formatPeso(totalBalance)}</p>
       </section>
 
@@ -129,7 +129,7 @@ function WalletCarousel({
   return (
     <section aria-label="Balance sources" className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#202A35]">Your wallets</h2>
+        <h2 className="text-sm font-semibold text-[#19372D]">YOUR WALLETS</h2>
         <span className="text-xs text-slate-400">
           {selectedIndex + 1}/{activeWallets.length}
         </span>
@@ -158,7 +158,7 @@ function WalletCarousel({
               setActiveIndex((selectedIndex - 1 + activeWallets.length) % activeWallets.length)
             }
             aria-label="Previous wallet"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#278568] ring-1 ring-slate-200 transition hover:bg-[#E9EDF2]"
+            className="flex h-9 w-9 items-center justify-center border-2 border-[#19372D] bg-[#FFFDF0] text-[#247354] shadow-[2px_2px_0_#A9BC91] transition hover:bg-[#CFE3C4]"
           >
             <ChevronLeft size={20} />
           </button>
@@ -166,7 +166,7 @@ function WalletCarousel({
             type="button"
             onClick={() => setActiveIndex((selectedIndex + 1) % activeWallets.length)}
             aria-label="Next wallet"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#278568] ring-1 ring-slate-200 transition hover:bg-[#E9EDF2]"
+            className="flex h-9 w-9 items-center justify-center border-2 border-[#19372D] bg-[#FFFDF0] text-[#247354] shadow-[2px_2px_0_#A9BC91] transition hover:bg-[#CFE3C4]"
           >
             <ChevronRight size={20} />
           </button>
@@ -187,7 +187,7 @@ function WalletBalanceCard({
 
   return (
     <article
-      className="w-full shrink-0 rounded-2xl p-5 text-white shadow-sm"
+      className="w-full shrink-0 border-2 border-[#19372D] p-5 text-white shadow-[4px_4px_0_#163F33]"
       style={{ background: `linear-gradient(135deg, ${cardColors[0]}, ${cardColors[1]})` }}
     >
       <p className="text-sm text-white/75">{wallet.type === 'cash' ? 'Cash' : wallet.type}</p>
