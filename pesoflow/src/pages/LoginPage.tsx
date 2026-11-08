@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -33,11 +34,17 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setError('')
+    if (!agreedToTerms) {
+      setError('Please agree to the Terms and Conditions to continue with Google.')
+      return
+    }
+
     setLoading(true)
     try {
       await signInWithGoogle()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
       setLoading(false)
     }
   }
@@ -122,6 +129,22 @@ export default function LoginPage() {
             or
             <span className="h-px flex-1 bg-slate-200" />
           </div>
+
+          <label className="mb-4 flex items-start gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-[#278568]"
+            />
+            <span>
+              I agree to the{' '}
+              <Link to="/terms" className="font-medium text-[#278568] hover:underline">
+                Terms and Conditions
+              </Link>{' '}
+              for Google sign-in.
+            </span>
+          </label>
 
           <button
             type="button"

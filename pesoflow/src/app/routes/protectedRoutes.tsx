@@ -14,6 +14,9 @@ export default function ProtectedRoute() {
   const { user, loading } = useAuth()
 
   if (loading) return <FullScreenLoader />
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) {
+    const accountWasDeleted = window.sessionStorage.getItem('pesoflow-account-deleted') === 'true'
+    return <Navigate to={accountWasDeleted ? '/account-deleted' : '/login'} replace />
+  }
   return <Outlet />
 }

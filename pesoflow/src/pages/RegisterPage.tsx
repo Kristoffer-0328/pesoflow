@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -20,6 +21,7 @@ export default function RegisterPage() {
     if (!name.trim() || !email.trim() || !password || !confirm) return 'Please fill in all fields.'
     if (password.length < 8) return 'Password must be at least 8 characters.'
     if (password !== confirm) return 'Passwords do not match.'
+    if (!agreedToTerms) return 'Please agree to the Terms and Conditions to continue.'
     return ''
   }
 
@@ -45,11 +47,17 @@ export default function RegisterPage() {
 
   const handleGoogleSignIn = async () => {
     setError('')
+    if (!agreedToTerms) {
+      setError('Please agree to the Terms and Conditions to continue.')
+      return
+    }
+
     setLoading(true)
     try {
       await signInWithGoogle()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
       setLoading(false)
     }
   }
@@ -137,6 +145,23 @@ export default function RegisterPage() {
             placeholder="Re-enter your password"
             className={`${inputClass} mb-6`}
           />
+
+          <label className="mb-6 flex items-start gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              required
+              className="mt-1 h-4 w-4 accent-[#278568]"
+            />
+            <span>
+              I agree to the{' '}
+              <Link to="/terms" className="font-medium text-[#278568] hover:underline">
+                Terms and Conditions
+              </Link>
+              .
+            </span>
+          </label>
 
           <button
             type="submit"

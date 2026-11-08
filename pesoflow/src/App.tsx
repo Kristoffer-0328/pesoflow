@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import GuestRoute from './app/routes/guestRoutes'
 import ProtectedRoute from './app/routes/protectedRoutes'
@@ -6,6 +7,9 @@ import AuthProvider from './features/components/authProvider'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import AccountDeletedPage from './pages/AccountDeletedPage'
+import SplashScreen from './pages/SplashScreen'
+import TermsPage from './pages/TermsPage'
 import TransactionsPage from './pages/TransactionsPage'
 import WalletsPage from './pages/WalletsPage'
 import BudgetsPage from './pages/BudgetsPage'
@@ -13,28 +17,42 @@ import GoalsPage from './pages/GoalsPage'
 import SettingsPage from './pages/SettingsPage'
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowSplash(false), 1200)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route element={<GuestRoute />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-          </Route>
+        {showSplash ? (
+          <SplashScreen />
+        ) : (
+          <Routes>
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/account-deleted" element={<AccountDeletedPage />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/transactions" element={<TransactionsPage />} />
-              <Route path="/wallets" element={<WalletsPage />} />
-              <Route path="/budgets" element={<BudgetsPage />} />
-              <Route path="/goals" element={<GoalsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
+            <Route element={<GuestRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
             </Route>
-          </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/transactions" element={<TransactionsPage />} />
+                <Route path="/wallets" element={<WalletsPage />} />
+                <Route path="/budgets" element={<BudgetsPage />} />
+                <Route path="/goals" element={<GoalsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
+            </Route>
+
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        )}
       </AuthProvider>
     </BrowserRouter>
   )

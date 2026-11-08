@@ -156,8 +156,10 @@ export async function deleteAccount(password?: string): Promise<void> {
     }
 
     await deleteUserData(user.uid)
+    window.sessionStorage.setItem('pesoflow-account-deleted', 'true')
     await user.delete()
   } catch (err) {
+    window.sessionStorage.removeItem('pesoflow-account-deleted')
     if (err instanceof Error && !(err instanceof FirebaseError)) throw err
     if (err instanceof FirebaseError && err.code === 'auth/requires-recent-login') {
       throw new Error('Please sign in again before deleting your account.', { cause: err })
