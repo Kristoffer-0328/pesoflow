@@ -235,6 +235,7 @@ export default function TransactionsPage() {
             className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
           />
           <input
+            autoComplete="off"
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -332,6 +333,7 @@ function FilterSelect({
     <label className="relative flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-[#202A35]">
       <span className="text-slate-500">{icon}</span>
       <select
+        autoComplete="off"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="max-w-40 appearance-none bg-transparent pr-5 outline-none"

@@ -246,7 +246,7 @@ export default function NewBudgetModal({
         {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>}
 
         {step === 1 && (
-          <form onSubmit={goToGroups}>
+          <form onSubmit={goToGroups} autoComplete="off">
             <p className="mb-5 text-sm text-slate-500">Set up the plan first. You can decide how to split it next.</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className={labelClass}>
@@ -490,7 +490,7 @@ function GroupEditor({
           <h3 className="text-lg font-semibold text-[#202A35]">Edit group</h3>
           <button type="button" onClick={onClose} aria-label="Close group editor" className="rounded-lg p-2 text-slate-500 hover:bg-[#E9EDF2]"><X size={18} /></button>
         </div>
-        <label className={`${labelClass} mt-5`}>Group name<input value={name} onChange={(event) => setName(event.target.value)} className={`${inputClass} mt-1`} autoFocus /></label>
+        <label className={`${labelClass} mt-5`}>Group name<input value={name} onChange={(event) => setName(event.target.value)} className={`${inputClass} mt-1`} autoFocus autoComplete="off" /></label>
         <p className="mt-5 text-sm font-medium text-[#202A35]">Icon</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {groupIcons.map(({ key, Icon }) => (
@@ -533,7 +533,7 @@ function GroupEditor({
         </div>
         <div className="mt-2 flex rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 focus-within:border-[#278568]">
           <span className="py-3 text-slate-400">₱</span>
-          <input type="number" inputMode="decimal" min="0" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className="w-full bg-transparent px-2 py-3 text-lg font-semibold outline-none" />
+          <input type="number" inputMode="decimal" min="0" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" autoComplete="off" className="w-full bg-transparent px-2 py-3 text-lg font-semibold outline-none" />
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-500" style={{ width: `${Math.min(percentage, 100)}%` }} /></div>
         <p className="mt-2 text-sm text-slate-500">{formatPeso(Math.max(free, 0))} free {free < 0 ? 'remaining' : ''}</p>

@@ -150,7 +150,7 @@ export default function AddTransactionModal({
             <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#E9EDF2] border-t-[#278568]" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             {/* Type toggle */}
             <div className="mb-5 grid grid-cols-3 gap-1 rounded-xl bg-[#E9EDF2] p-1">
               {typeOptions.map((option) => (

@@ -63,6 +63,7 @@ export default function SettingsPage() {
         <label className="mt-5 block text-sm font-medium text-[#19372D]" htmlFor="display-name">Display name</label>
         <input
           id="display-name"
+          autoComplete="off"
           className={`${inputClass} mt-1`}
           value={displayName}
           onChange={(event) => setDisplayName(event.target.value)}
@@ -96,11 +97,11 @@ export default function SettingsPage() {
             {usesPassword && (
               <>
                 <label className="mt-4 block text-sm font-medium text-[#19372D]" htmlFor="delete-password">Password</label>
-                <input id="delete-password" type="password" className={`${inputClass} mt-1`} value={password} onChange={(event) => setPassword(event.target.value)} />
+                <input id="delete-password" type="password" autoComplete="off" className={`${inputClass} mt-1`} value={password} onChange={(event) => setPassword(event.target.value)} />
               </>
             )}
             <label className="mt-4 block text-sm font-medium text-[#19372D]" htmlFor="delete-confirmation">Confirmation</label>
-            <input id="delete-confirmation" className={`${inputClass} mt-1`} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />
+            <input id="delete-confirmation" autoComplete="off" className={`${inputClass} mt-1`} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />
             <div className="mt-5 flex justify-end gap-3">
               <button type="button" onClick={() => setDeleteOpen(false)} disabled={deleting} className="border-2 border-[#19372D] px-4 py-2 text-sm">Cancel</button>
               <button type="button" onClick={() => void removeAccount()} disabled={deleting || confirmation !== 'DELETE' || (usesPassword && !password)} className="border-2 border-red-800 bg-red-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">

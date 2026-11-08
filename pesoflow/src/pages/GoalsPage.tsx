@@ -235,6 +235,7 @@ function GoalBook({
                       <span className="text-[#756B60]">₱</span>
                       <input
                         autoFocus
+                        autoComplete="off"
                         value={amount}
                         onChange={(event) => setAmount(event.target.value)}
                         type="number"
@@ -305,7 +306,7 @@ function GoalCreator({ wallets, transactions, onClose, onSave }: { wallets: Wall
     if (!name.trim() || !targetAmount || targetAmount <= 0 || walletIds.length === 0) return
     void onSave({ name: name.trim(), targetAmount, targetDate: targetDate || undefined, walletIds })
   }
-  return <Modal title="Create savings goal" onClose={onClose}><form onSubmit={submit} className="space-y-4">
+  return <Modal title="Create savings goal" onClose={onClose}><form onSubmit={submit} className="space-y-4" autoComplete="off">
     <label className="block text-sm font-medium text-[#202A35]">Goal name<input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Palawan trip" className={`${inputClass} mt-1`} /></label>
     <label className="block text-sm font-medium text-[#202A35]">Target amount<div className="mt-1 flex rounded-xl border border-slate-200 bg-[#F7F8FA] px-3"><span className="py-2.5 text-slate-400">₱</span><input type="number" inputMode="decimal" min="0" step="0.01" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="50000.00" className="w-full bg-transparent px-2 py-2.5 outline-none" /></div></label>
     <label className="block text-sm font-medium text-[#202A35]">Target date <span className="font-normal text-slate-400">(optional)</span><input type="date" value={targetDate} onChange={(event) => setTargetDate(event.target.value)} className={`${inputClass} mt-1`} /></label>

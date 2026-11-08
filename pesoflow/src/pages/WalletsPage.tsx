@@ -300,7 +300,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
             </button>
             <div className={`${inputClass} mb-3 flex items-center gap-2`}>
               <Search size={17} className="text-slate-400" />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search providers" className="w-full bg-transparent text-sm outline-none" />
+              <input autoComplete="off" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search providers" className="w-full bg-transparent text-sm outline-none" />
             </div>
             <div className="divide-y divide-slate-100">
               {providers[type]
@@ -317,7 +317,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
         )}
 
         {step === 3 && type && (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             <button type="button" onClick={() => setStep(type === 'cash' ? 1 : 2)} className="mb-4 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#278568]">
               <ArrowLeft size={16} /> Back
             </button>
