@@ -4,7 +4,7 @@ import { BookOpen, CalendarDays, Check, ChevronLeft, ChevronRight, Plus, Target,
 import { useAuth } from '../features/auth/hooks/useAuth'
 import { addGoalContribution, createSavingsGoal, subscribeToGoalContributions, subscribeToGoals } from '../features/goals/goalServices'
 import type { SavingsGoal, SavingsGoalContribution, Wallet } from '../types'
-import { formatPeso, formatPesoInput, parsePesoToCentavos } from '../utils/money'
+import { formatPeso, parsePesoToCentavos } from '../utils/money'
 import { getWalletBalance } from '../utils/calculation'
 import { useUserData } from '../features/auth/hooks/userData'
 import { getMonthKey } from '../utils/date'
@@ -236,7 +236,11 @@ function GoalBook({
                       <input
                         autoFocus
                         value={amount}
-                        onChange={(event) => setAmount(formatPesoInput(event.target.value))}
+                        onChange={(event) => setAmount(event.target.value)}
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        step="0.01"
                         onKeyDown={(event) => {
                           if (event.key === 'Enter') {
                             event.preventDefault()
@@ -303,7 +307,7 @@ function GoalCreator({ wallets, transactions, onClose, onSave }: { wallets: Wall
   }
   return <Modal title="Create savings goal" onClose={onClose}><form onSubmit={submit} className="space-y-4">
     <label className="block text-sm font-medium text-[#202A35]">Goal name<input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Palawan trip" className={`${inputClass} mt-1`} /></label>
-    <label className="block text-sm font-medium text-[#202A35]">Target amount<div className="mt-1 flex rounded-xl border border-slate-200 bg-[#F7F8FA] px-3"><span className="py-2.5 text-slate-400">₱</span><input value={target} onChange={(event) => setTarget(formatPesoInput(event.target.value))} placeholder="50,000.00" className="w-full bg-transparent px-2 py-2.5 outline-none" /></div></label>
+    <label className="block text-sm font-medium text-[#202A35]">Target amount<div className="mt-1 flex rounded-xl border border-slate-200 bg-[#F7F8FA] px-3"><span className="py-2.5 text-slate-400">₱</span><input type="number" inputMode="decimal" min="0" step="0.01" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="50000.00" className="w-full bg-transparent px-2 py-2.5 outline-none" /></div></label>
     <label className="block text-sm font-medium text-[#202A35]">Target date <span className="font-normal text-slate-400">(optional)</span><input type="date" value={targetDate} onChange={(event) => setTargetDate(event.target.value)} className={`${inputClass} mt-1`} /></label>
     <fieldset><legend className="text-sm font-medium text-[#202A35]">Source wallets</legend><p className="mt-1 text-xs text-slate-500">These wallets are where you plan to save from.</p><div className="mt-2 space-y-2">{wallets.filter((wallet) => wallet.isActive).map((wallet) => <label key={wallet.id} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={walletIds.includes(wallet.id)} onChange={(event) => setWalletIds((current) => event.target.checked ? [...current, wallet.id] : current.filter((id) => id !== wallet.id))} /><span className="flex-1">{wallet.name}</span><span className="text-xs text-slate-500">{formatPeso(balances.get(wallet.id) ?? 0)}</span></label>)}</div></fieldset>
     <button type="submit" disabled={!name.trim() || !parsePesoToCentavos(target) || walletIds.length === 0} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#278568] py-3 font-semibold text-white disabled:opacity-50"><Check size={18} /> Create goal</button>

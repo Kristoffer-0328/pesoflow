@@ -5,7 +5,7 @@ import { useAuth } from '../features/auth/hooks/useAuth'
 import { addWallet } from '../features/auth/services/walletServices'
 import type { Wallet } from '../types'
 import { getWalletBalance } from '../utils/calculation'
-import { formatPeso, formatPesoInput, parsePesoToCentavos } from '../utils/money'
+import { formatPeso, parsePesoToCentavos } from '../utils/money'
 import { getWalletCardColors, getWalletProviderColor } from '../utils/walletColors'
 import { useUserData } from '../features/auth/hooks/userData'
 import { getMonthKey } from '../utils/date'
@@ -330,7 +330,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
             <label className={labelClass} htmlFor="initial-balance">Current balance</label>
             <div className="relative mb-6">
               <span className="absolute inset-y-0 left-3 flex items-center text-lg font-semibold text-slate-400">₱</span>
-              <input id="initial-balance" value={balance} onChange={(event) => setBalance(formatPesoInput(event.target.value))} inputMode="decimal" placeholder="0.00" className={`${inputClass} pl-8`} />
+              <input id="initial-balance" type="number" min="0" step="0.01" value={balance} onChange={(event) => setBalance(event.target.value)} inputMode="decimal" placeholder="0.00" className={`${inputClass} pl-8`} />
             </div>
             <button type="submit" disabled={saving} className="w-full rounded-xl bg-[#278568] py-3 text-sm font-semibold text-white hover:bg-[#1f6e55] disabled:cursor-not-allowed disabled:opacity-60">
               {saving ? 'Saving...' : 'Save wallet'}

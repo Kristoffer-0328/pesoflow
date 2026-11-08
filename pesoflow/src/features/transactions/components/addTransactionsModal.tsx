@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import type { TransactionType } from '../../../types'
 import { toDateInputValue } from '../../../utils/date'
-import { formatPesoInput, parsePesoToCentavos } from '../../../utils/money'
+import { parsePesoToCentavos } from '../../../utils/money'
 import { useAuth } from '../../auth/hooks/useAuth'
 import { useTransactionOptions } from '../../auth/hooks/useTransactionsOptions'
 import { addTransaction } from '../services/transactionServices'
@@ -186,11 +186,13 @@ export default function AddTransactionModal({
               </span>
               <input
                 id="amount"
-                type="text"
+                type="number"
                 inputMode="decimal"
+                min="0"
+                step="0.01"
                 autoFocus
                 value={amount}
-                onChange={(e) => setAmount(formatPesoInput(e.target.value))}
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
                 className={`${inputClass} py-3 pl-8 text-lg font-semibold`}
               />

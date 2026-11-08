@@ -16,7 +16,7 @@ import { createBudget } from '../budgetServices'
 import type { Budget, BudgetGroup, Transaction, Wallet } from '../../../types'
 import { getWalletBalance } from '../../../utils/calculation'
 import { getMonthKey } from '../../../utils/date'
-import { formatPeso, formatPesoInput, parsePesoToCentavos } from '../../../utils/money'
+import { formatPeso, parsePesoToCentavos } from '../../../utils/money'
 
 const inputClass =
   'w-full rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 py-2.5 text-sm outline-none transition focus:border-[#278568] focus:ring-2 focus:ring-[#278568]/20'
@@ -257,7 +257,7 @@ export default function NewBudgetModal({
                 Total budget
                 <span className="mt-1 flex rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 focus-within:border-[#278568] focus-within:ring-2 focus-within:ring-[#278568]/20">
                   <span className="py-2.5 text-slate-400">₱</span>
-                  <input type="text" inputMode="decimal" pattern="[0-9,]*[.]?[0-9]*" value={amount} onChange={(event) => setAmount(formatPesoInput(event.target.value))} placeholder="20,000.00" className="w-full bg-transparent px-2 py-2.5 text-sm outline-none" required />
+                  <input type="number" inputMode="decimal" min="0" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="20000.00" className="w-full bg-transparent px-2 py-2.5 text-sm outline-none" required />
                 </span>
               </label>
             </div>
@@ -472,7 +472,7 @@ function GroupEditor({
   selectedWalletIds: string[]
 }) {
   const [name, setName] = useState(group.name)
-  const [amount, setAmount] = useState(group.amount ? formatPesoInput(String(group.amount / 100)) : '')
+  const [amount, setAmount] = useState(group.amount ? String(group.amount / 100) : '')
   const [icon, setIcon] = useState(group.icon ?? 'heart')
   const [walletPercentages, setWalletPercentages] = useState<Record<string, number>>(
     group.walletPercentages ?? Object.fromEntries(
@@ -533,13 +533,13 @@ function GroupEditor({
         </div>
         <div className="mt-2 flex rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 focus-within:border-[#278568]">
           <span className="py-3 text-slate-400">₱</span>
-          <input type="text" inputMode="decimal" pattern="[0-9,]*[.]?[0-9]*" value={amount} onChange={(event) => setAmount(formatPesoInput(event.target.value))} placeholder="0.00" className="w-full bg-transparent px-2 py-3 text-lg font-semibold outline-none" />
+          <input type="number" inputMode="decimal" min="0" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className="w-full bg-transparent px-2 py-3 text-lg font-semibold outline-none" />
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-500" style={{ width: `${Math.min(percentage, 100)}%` }} /></div>
         <p className="mt-2 text-sm text-slate-500">{formatPeso(Math.max(free, 0))} free {free < 0 ? 'remaining' : ''}</p>
         <div className="mt-4 grid grid-cols-3 gap-2">
           {[10, 20, 25, 30, 50, 100].map((value) => (
-            <button key={value} type="button" onClick={() => setAmount(formatPesoInput(String((total * value) / 100 / 100)))} className="rounded-xl border border-slate-200 py-3 font-semibold text-[#202A35] hover:border-[#278568]">{value}%</button>
+            <button key={value} type="button" onClick={() => setAmount(String((total * value) / 100 / 100))} className="rounded-xl border border-slate-200 py-3 font-semibold text-[#202A35] hover:border-[#278568]">{value}%</button>
           ))}
         </div>
         <button
