@@ -40,6 +40,7 @@ export interface Budget {
   startDate?: string
   endDate?: string
   groups?: BudgetGroup[]
+  funding?: BudgetFunding[]
   allocations?: {
     needs: number
     wants: number
@@ -51,4 +52,27 @@ export interface BudgetGroup {
   name: string
   amount: number // integer centavos
   icon?: string
+  walletPercentages?: Record<string, number>
+}
+
+export interface BudgetFunding {
+  walletId: string
+  percentage: number
+}
+
+export interface SavingsGoal {
+  id?: string
+  name: string
+  targetAmount: number
+  savedAmount: number
+  targetDate?: string
+  walletIds: string[]
+  createdAt?: unknown
+}
+
+export interface SavingsGoalContribution {
+  id: string
+  amount: number
+  walletId: string
+  createdAt?: unknown
 }

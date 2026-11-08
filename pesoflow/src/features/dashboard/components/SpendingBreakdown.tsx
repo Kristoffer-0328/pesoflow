@@ -12,8 +12,14 @@ export default function SpendingBreakdown({ data }: { data: Item[] }) {
   const total = data.reduce((s, d) => s + d.amount, 0)
 
   return (
-    <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-      <h3 className="mb-4 text-sm font-semibold text-[#202A35]">Spending Breakdown</h3>
+    <div className="border-2 border-[#19372D] bg-white p-5 shadow-[3px_3px_0_#A9BC91]">
+      <div className="mb-4 flex items-end justify-between border-b-2 border-[#19372D] pb-3">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-slate-400">Where your money goes</p>
+          <h3 className="mt-1 text-sm font-semibold text-[#202A35]">Spending Breakdown</h3>
+        </div>
+        <span className="text-[10px] text-slate-400">This month</span>
+      </div>
 
       {data.length === 0 ? (
         <p className="py-10 text-center text-sm text-slate-400">No expenses recorded this month.</p>

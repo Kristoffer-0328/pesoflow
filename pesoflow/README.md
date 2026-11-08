@@ -41,7 +41,13 @@ phase. The application currently includes:
   - Custom one-time and monthly plans.
   - Multi-step plan creation.
   - User-defined budget groups.
+  - Explicit per-user monthly dashboard plan selection.
   - Budget details view.
+- Savings goals with:
+  - Target amounts and optional target dates.
+  - Multiple source-wallet selection.
+  - Contribution history and progress tracking.
+  - Suggested monthly contributions based on the target date.
 - Integer-centavo storage and shared calculation utilities for wallet balances,
   monthly summaries, savings rate, and expense breakdowns.
 - PWA manifest and application icons.
@@ -201,6 +207,9 @@ npm run build
 Firebase configuration is loaded from the project environment setup in
 `src/lib/firebase.ts`. Configure the required Firebase values before using
 authentication or Firestore features.
+
+Firestore security rules are defined in `firestore.rules`. Deploy them with
+the Firebase CLI before using the app against a production Firestore database.
 
 ## Next Development Priorities
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from './useAuth'
-import { subscribeToBudget } from '../../budgets/budgetServices'
+import { getSelectedBudgetId, subscribeToBudgetsForMonth } from '../../budgets/budgetServices'
 import { subscribeToTransactions } from '../../transactions/services/transactionServices'
 import { subscribeToWallets } from '../services/walletServices'
 import { subscribeToCategories } from '../services/categoryServices'
@@ -29,7 +29,21 @@ export function useUserData(monthKey: string) {
       subscribeToWallets(uid, setWallets, handleError),
       subscribeToCategories(uid, setCategories, handleError),
       subscribeToTransactions(uid, setTransactions, handleError),
-      subscribeToBudget(uid, monthKey, setBudget, handleError),
+      subscribeToBudgetsForMonth(
+        uid,
+        monthKey,
+        (budgets) => {
+          const selectedId = getSelectedBudgetId(uid, monthKey)
+          setBudget(
+            selectedId === 'default-50-30-20'
+              ? null
+              : budgets.find((candidate) => candidate.id === selectedId) ??
+                  budgets[0] ??
+                  null,
+          )
+        },
+        handleError,
+      ),
     ]
 
     // Stop listening when the page unmounts, the user changes, or the month rolls over.

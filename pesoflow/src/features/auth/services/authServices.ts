@@ -1,6 +1,9 @@
 import {
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   GoogleAuthProvider,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
   signInWithEmailAndPassword,
   signOut,
   signInWithPopup,
@@ -8,7 +11,15 @@ import {
 } from 'firebase/auth'
 import type { User } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
-import { collection, doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  serverTimestamp,
+  updateDoc,
+  writeBatch,
+} from 'firebase/firestore'
 import { auth, db } from '../../../lib/firebase'
 import { defaultCategories, defaultWallet } from '../../../lib/defaultData'
 
@@ -111,4 +122,72 @@ async function initializeUserData(user: User, displayName: string, email: string
 
 export async function logout(): Promise<void> {
   await signOut(auth)
+}
+
+export async function updateUserSettings(displayName: string): Promise<void> {
+  const user = auth.currentUser
+  if (!user) throw new Error('You must be signed in to update settings.')
+
+  const trimmedName = displayName.trim()
+  if (!trimmedName) throw new Error('Please enter a display name.')
+
+  try {
+    await updateProfile(user, { displayName: trimmedName })
+    await updateDoc(doc(db, 'users', user.uid), {
+      displayName: trimmedName,
+      updatedAt: serverTimestamp(),
+    })
+  } catch (err) {
+    throw toFriendlyError(err)
+  }
+}
+
+export async function deleteAccount(password?: string): Promise<void> {
+  const user = auth.currentUser
+  if (!user) throw new Error('You must be signed in to delete your account.')
+
+  try {
+    const providerId = user.providerData[0]?.providerId
+    if (providerId === 'password') {
+      if (!user.email || !password) throw new Error('Enter your password to continue.')
+      await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password))
+    } else if (providerId === 'google.com') {
+      await reauthenticateWithPopup(user, new GoogleAuthProvider())
+    }
+
+    await deleteUserData(user.uid)
+    await user.delete()
+  } catch (err) {
+    if (err instanceof Error && !(err instanceof FirebaseError)) throw err
+    if (err instanceof FirebaseError && err.code === 'auth/requires-recent-login') {
+      throw new Error('Please sign in again before deleting your account.', { cause: err })
+    }
+    const friendlyError = toFriendlyError(err)
+    throw new Error(friendlyError.message, { cause: err })
+  }
+}
+
+async function deleteUserData(userId: string): Promise<void> {
+  const userRef = doc(db, 'users', userId)
+  const refs = []
+  const subcollections = ['categories', 'wallets', 'budgets', 'transactions', 'savingsGoals'] as const
+
+  for (const subcollection of subcollections) {
+    const snapshot = await getDocs(collection(userRef, subcollection))
+    refs.push(...snapshot.docs.map((item) => item.ref))
+
+    if (subcollection === 'savingsGoals') {
+      for (const goal of snapshot.docs) {
+        const contributions = await getDocs(collection(goal.ref, 'contributions'))
+        refs.push(...contributions.docs.map((item) => item.ref))
+      }
+    }
+  }
+
+  refs.push(userRef)
+  for (let index = 0; index < refs.length; index += 450) {
+    const batch = writeBatch(db)
+    refs.slice(index, index + 450).forEach((ref) => batch.delete(ref))
+    await batch.commit()
+  }
 }

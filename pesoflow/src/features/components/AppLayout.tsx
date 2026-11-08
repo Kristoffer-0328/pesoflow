@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   ArrowLeftRight,
   Home,
@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   PiggyBank,
+  Target,
   Plus,
   Settings,
   Wallet as WalletIcon,
@@ -23,18 +24,20 @@ const desktopNav = [
   { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { to: '/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/budgets', label: 'Budgets', icon: PiggyBank },
+  { to: '/goals', label: 'Goals', icon: Target },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 const mobileNav = [
-  { to: '/dashboard', label: 'Home', icon: Home },
   { to: '/transactions', label: 'Activity', icon: ArrowLeftRight },
   { to: '/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/budgets', label: 'Budgets', icon: PiggyBank },
+  { to: '/goals', label: 'Goals', icon: Target },
 ]
 
 export default function AppLayout() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [addMenuOpen, setAddMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [transactionType, setTransactionType] = useState<TransactionType | null>(null)
@@ -218,9 +221,9 @@ export default function AppLayout() {
             type="button"
             onClick={openAddMenu}
             aria-label="Add transaction"
-            className="-mt-8 flex h-14 w-14 items-center justify-center border-2 border-[#19372D] bg-[#4A9A70] text-white shadow-[4px_4px_0_#163F33]"
+            className="-mt-7 flex h-12 w-12 items-center justify-center border-2 border-[#19372D] bg-[#4A9A70] text-white shadow-[3px_3px_0_#163F33]"
           >
-            <Plus size={26} />
+            <Plus size={22} />
           </button>
 
           {mobileNav.slice(2).map((item) => (
@@ -230,7 +233,14 @@ export default function AppLayout() {
       </nav>
 
       {addMenuOpen && (
-        <AddTransactionMenu onClose={closeAddMenu} onSelect={openTransactionForm} />
+        <AddTransactionMenu
+          onClose={closeAddMenu}
+          onSelect={openTransactionForm}
+          onHome={() => {
+            closeAddMenu()
+            navigate('/dashboard')
+          }}
+        />
       )}
       {transactionType && (
         <AddTransactionModal initialType={transactionType} onClose={closeTransactionForm} />

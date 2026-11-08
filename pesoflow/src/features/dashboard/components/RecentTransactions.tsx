@@ -18,8 +18,14 @@ export default function RecentTransactions({ transactions, categories, wallets }
     .slice(0, 6)
 
   return (
-    <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-      <h3 className="mb-4 text-sm font-semibold text-[#202A35]">Recent Transactions</h3>
+    <div className="border-2 border-[#19372D] bg-white p-5 shadow-[3px_3px_0_#A9BC91]">
+      <div className="mb-2 flex items-end justify-between border-b-2 border-[#19372D] pb-3">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-slate-400">Your latest money activity</p>
+          <h3 className="mt-1 text-sm font-semibold text-[#202A35]">Recent Transactions</h3>
+        </div>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[#247354]">View all →</span>
+      </div>
 
       {recent.length === 0 ? (
         <p className="py-10 text-center text-sm text-slate-400">No transactions yet.</p>
@@ -39,7 +45,7 @@ export default function RecentTransactions({ transactions, categories, wallets }
             const sign = t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''
 
             return (
-              <li key={t.id} className="flex items-center gap-3 py-3">
+              <li key={t.id} className="flex items-center gap-3 border-b border-dashed border-[#A9BC91] py-3 last:border-b-0">
                 <span
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold text-white"
                   style={{ backgroundColor: color }}

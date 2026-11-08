@@ -9,6 +9,8 @@ import RegisterPage from './pages/RegisterPage'
 import TransactionsPage from './pages/TransactionsPage'
 import WalletsPage from './pages/WalletsPage'
 import BudgetsPage from './pages/BudgetsPage'
+import GoalsPage from './pages/GoalsPage'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   return (
@@ -26,7 +28,8 @@ function App() {
               <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/wallets" element={<WalletsPage />} />
               <Route path="/budgets" element={<BudgetsPage />} />
-              <Route path="/settings" element={<h1 className="text-2xl font-semibold text-[#202A35]">Settings</h1>} />
+              <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Route>
 

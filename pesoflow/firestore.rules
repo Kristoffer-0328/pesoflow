@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function validTransaction(d) {
+      return d.type in ['income', 'expense', 'transfer']
+        && d.amount is int
+        && d.amount > 0
+        && d.isDeleted is bool;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /wallets/{walletId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /categories/{categoryId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /budgets/{budgetId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /transactions/{transactionId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && validTransaction(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /savingsGoals/{goalId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && validSavingsGoal(request.resource.data);
+        allow delete: if isOwner(userId);
+
+        match /contributions/{contributionId} {
+          allow read: if isOwner(userId);
+          allow create: if isOwner(userId)
+            && validContribution(request.resource.data);
+          allow update, delete: if isOwner(userId);
+        }
+      }
+    }
+
+    function validSavingsGoal(d) {
+      return d.name is string
+        && d.name.size() > 0
+        && d.targetAmount is int
+        && d.targetAmount > 0
+        && d.savedAmount is int
+        && d.savedAmount >= 0
+        && d.savedAmount <= d.targetAmount
+        && d.walletIds is list;
+    }
+
+    function validContribution(d) {
+      return d.amount is int
+        && d.amount > 0
+        && d.walletId is string;
+    }
+  }
+}

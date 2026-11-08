@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react'
 import { BriefcaseBusiness, CalendarDays, Folder, Plus, X } from 'lucide-react'
 import { useAuth } from '../features/auth/hooks/useAuth'
-import { subscribeToBudgets } from '../features/budgets/budgetServices'
-import type { Budget } from '../types'
+import {
+  getSelectedBudgetId,
+  setSelectedBudgetId,
+  subscribeToBudgets,
+} from '../features/budgets/budgetServices'
+import { subscribeToWallets } from '../features/auth/services/walletServices'
+import { subscribeToTransactions } from '../features/transactions/services/transactionServices'
+import type { Budget, Transaction, Wallet } from '../types'
 import { getMonthKey } from '../utils/date'
 import { formatPeso } from '../utils/money'
 import NewBudgetModal from '../features/budgets/components/NewBudgetModal'
@@ -25,24 +31,31 @@ export default function BudgetsPage() {
   const [showCreator, setShowCreator] = useState(false)
   const [detailBudget, setDetailBudget] = useState<Budget | null>(null)
   const [selectedId, setSelectedId] = useState(defaultBudget.id)
+  const [dashboardBudgetId, setDashboardBudgetId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [wallets, setWallets] = useState<Wallet[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
 
   useEffect(() => {
     if (!user) return
-    return subscribeToBudgets(
-      user.uid,
-      (nextBudgets) => {
+    const handleError = (loadError: Error) => {
+      setError(loadError.message)
+      setLoading(false)
+    }
+    const unsubscribers = [
+      subscribeToBudgets(user.uid, (nextBudgets) => {
         setBudgets(nextBudgets)
         setLoading(false)
-      },
-      (loadError) => {
-        setError(loadError.message)
-        setLoading(false)
-      },
-    )
+      }, handleError),
+      subscribeToWallets(user.uid, setWallets, handleError),
+      subscribeToTransactions(user.uid, setTransactions, handleError),
+    ]
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe())
   }, [user])
 
+  const activeDashboardBudgetId =
+    dashboardBudgetId ?? (user ? getSelectedBudgetId(user.uid, defaultBudget.month) : null)
   const plans = [defaultBudget, ...budgets]
   return (
     <div className="max-w-6xl space-y-8">
@@ -140,22 +153,45 @@ export default function BudgetsPage() {
         </section>
       )}
 
-      {showCreator && <NewBudgetModal userId={user?.uid} onClose={() => {
+      {showCreator && <NewBudgetModal userId={user?.uid} wallets={wallets} transactions={transactions} onClose={() => {
         setShowCreator(false)
         setSelectedId(defaultBudget.id)
       }} onSaved={(budget) => {
         setBudgets((current) => [...current, budget])
         setSelectedId(budget.id ?? '')
+        if (user && budget.id) {
+          setSelectedBudgetId(user.uid, budget.month, budget.id)
+          setDashboardBudgetId(budget.id)
+        }
         setShowCreator(false)
       }} />}
       {detailBudget && (
-        <BudgetDetailsModal budget={detailBudget} onClose={() => setDetailBudget(null)} />
+        <BudgetDetailsModal
+          budget={detailBudget}
+          dashboardBudgetId={activeDashboardBudgetId}
+          onUseOnDashboard={() => {
+            if (!user || !detailBudget.id) return
+            setSelectedBudgetId(user.uid, detailBudget.month, detailBudget.id)
+            setDashboardBudgetId(detailBudget.id)
+          }}
+          onClose={() => setDetailBudget(null)}
+        />
       )}
     </div>
   )
 }
 
-function BudgetDetailsModal({ budget, onClose }: { budget: Budget; onClose: () => void }) {
+function BudgetDetailsModal({
+  budget,
+  dashboardBudgetId,
+  onUseOnDashboard,
+  onClose,
+}: {
+  budget: Budget
+  dashboardBudgetId: string | null
+  onUseOnDashboard: () => void
+  onClose: () => void
+}) {
   const isDefault = budget.template === '50/30/20'
 
   useEffect(() => {
@@ -199,6 +235,15 @@ function BudgetDetailsModal({ budget, onClose }: { budget: Budget; onClose: () =
             <p className="mt-2 text-sm text-slate-500">{budget.startDate} to {budget.endDate}</p>
           )}
         </div>
+        {budget.id && (
+          <button
+            type="button"
+            onClick={onUseOnDashboard}
+            className="mt-4 w-full rounded-xl border border-[#278568] px-4 py-3 text-sm font-semibold text-[#278568] hover:bg-[#278568]/10"
+          >
+            {dashboardBudgetId === budget.id ? 'Showing on dashboard' : 'Show on dashboard'}
+          </button>
+        )}
 
         {isDefault ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-3">

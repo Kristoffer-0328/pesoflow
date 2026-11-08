@@ -13,7 +13,8 @@ import {
   X,
 } from 'lucide-react'
 import { createBudget } from '../budgetServices'
-import type { Budget, BudgetGroup } from '../../../types'
+import type { Budget, BudgetGroup, Transaction, Wallet } from '../../../types'
+import { getWalletBalance } from '../../../utils/calculation'
 import { getMonthKey } from '../../../utils/date'
 import { formatPeso, formatPesoInput, parsePesoToCentavos } from '../../../utils/money'
 
@@ -38,10 +39,14 @@ const groupIcons = [
 
 export default function NewBudgetModal({
   userId,
+  wallets,
+  transactions,
   onClose,
   onSaved,
 }: {
   userId?: string
+  wallets: Wallet[]
+  transactions: Transaction[]
   onClose: () => void
   onSaved: (budget: Budget) => void
 }) {
@@ -52,12 +57,31 @@ export default function NewBudgetModal({
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [groups, setGroups] = useState<BudgetGroup[]>([])
+  const [selectedWalletIds, setSelectedWalletIds] = useState<string[]>([])
+  const [walletPercentages, setWalletPercentages] = useState<Record<string, number>>({})
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const groupsViewportRef = useRef<HTMLDivElement>(null)
   const touchYRef = useRef<number | null>(null)
   const total = parsePesoToCentavos(amount) ?? 0
+  const walletBalances = useMemo(
+    () =>
+      new Map(
+        wallets
+          .filter((wallet) => wallet.isActive)
+          .map((wallet) => [wallet.id, getWalletBalance(wallet, transactions)]),
+      ),
+    [transactions, wallets],
+  )
+  const selectedWalletTotal = selectedWalletIds.reduce(
+    (sum, walletId) => sum + (walletBalances.get(walletId) ?? 0),
+    0,
+  )
+  const walletPercentageTotal = selectedWalletIds.reduce(
+    (sum, walletId) => sum + (walletPercentages[walletId] ?? 0),
+    0,
+  )
   const assigned = useMemo(() => groups.reduce((sum, group) => sum + group.amount, 0), [groups])
   const remaining = total - assigned
   const progress = step === 1 ? 33 : step === 2 ? 66 : 100
@@ -81,6 +105,9 @@ export default function NewBudgetModal({
   const validatePlan = () => {
     if (!name.trim()) return 'Give your plan a name.'
     if (!Number.isFinite(total) || total <= 0) return 'Enter a total budget greater than zero.'
+    if (selectedWalletIds.length === 0) return 'Choose at least one source wallet.'
+    if (walletPercentageTotal !== 100) return 'Source wallet percentages must total 100%.'
+    if (total > selectedWalletTotal) return 'The budget cannot exceed the available funds in selected wallets.'
     if (planType === 'one-time') {
       if (!startDate || !endDate) return 'Choose a start date and an end date.'
       if (endDate < startDate) return 'The end date must be after the start date.'
@@ -89,7 +116,18 @@ export default function NewBudgetModal({
   }
 
   const addGroup = (groupName = '', icon = 'heart') => {
-    setGroups((current) => [...current, { name: groupName, amount: 0, icon }])
+    const equalPercentage = selectedWalletIds.length > 0 ? 100 / selectedWalletIds.length : 0
+    setGroups((current) => [
+      ...current,
+      {
+        name: groupName,
+        amount: 0,
+        icon,
+        walletPercentages: Object.fromEntries(
+          selectedWalletIds.map((walletId) => [walletId, equalPercentage]),
+        ),
+      },
+    ])
     setEditingIndex(groups.length)
   }
 
@@ -155,6 +193,10 @@ export default function NewBudgetModal({
         planType,
         ...(planType === 'one-time' ? { startDate, endDate } : {}),
         groups: validGroups,
+        funding: selectedWalletIds.map((walletId) => ({
+          walletId,
+          percentage: walletPercentages[walletId] ?? 0,
+        })),
       }
       const id = await createBudget(userId, budget)
       onSaved({ ...budget, id })
@@ -218,6 +260,62 @@ export default function NewBudgetModal({
                   <input type="text" inputMode="decimal" pattern="[0-9,]*[.]?[0-9]*" value={amount} onChange={(event) => setAmount(formatPesoInput(event.target.value))} placeholder="20,000.00" className="w-full bg-transparent px-2 py-2.5 text-sm outline-none" required />
                 </span>
               </label>
+            </div>
+            <div className="mt-5 rounded-xl border border-slate-200 p-4">
+              <p className={labelClass}>Source wallets</p>
+              <p className="mb-3 text-xs text-slate-500">
+                Available funds: {formatPeso(selectedWalletTotal)}. The budget total cannot exceed this amount.
+              </p>
+              <div className="space-y-2">
+                {wallets.filter((wallet) => wallet.isActive).map((wallet) => {
+                  const selected = selectedWalletIds.includes(wallet.id)
+                  return (
+                    <div key={wallet.id} className="flex items-center gap-3">
+                      <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-[#202A35]">
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={(event) => {
+                            if (event.target.checked) {
+                              setSelectedWalletIds((current) => [...current, wallet.id])
+                              setWalletPercentages((current) => ({
+                                ...current,
+                                [wallet.id]: 0,
+                              }))
+                            } else {
+                              setSelectedWalletIds((current) => current.filter((id) => id !== wallet.id))
+                              setWalletPercentages((current) => {
+                                const next = { ...current }
+                                delete next[wallet.id]
+                                return next
+                              })
+                            }
+                          }}
+                        />
+                        <span className="truncate">{wallet.name}</span>
+                        <span className="ml-auto text-xs text-slate-500">{formatPeso(walletBalances.get(wallet.id) ?? 0)}</span>
+                      </label>
+                      {selected && (
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={walletPercentages[wallet.id] ?? 0}
+                          onChange={(event) => setWalletPercentages((current) => ({
+                            ...current,
+                            [wallet.id]: Number(event.target.value) || 0,
+                          }))}
+                          className="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-right text-sm"
+                          aria-label={`${wallet.name} funding percentage`}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+              <p className={`mt-2 text-right text-xs ${walletPercentageTotal === 100 ? 'text-slate-500' : 'text-red-600'}`}>
+                {walletPercentageTotal}% assigned
+              </p>
             </div>
             <div className="mt-5 flex gap-2">
               {(['one-time', 'monthly'] as const).map((type) => (
@@ -338,11 +436,18 @@ export default function NewBudgetModal({
           group={groups[editingIndex]}
           total={total}
           assigned={assigned - groups[editingIndex].amount}
-          onClose={() => setEditingIndex(null)}
+          onClose={() => {
+            if (groups[editingIndex].amount === 0) {
+              setGroups((current) => current.filter((_, index) => index !== editingIndex))
+            }
+            setEditingIndex(null)
+          }}
           onSave={(changes) => {
             updateGroup(editingIndex, changes)
             setEditingIndex(null)
           }}
+          wallets={wallets}
+          selectedWalletIds={selectedWalletIds}
         />
       )}
     </div>
@@ -355,16 +460,25 @@ function GroupEditor({
   assigned,
   onClose,
   onSave,
+  wallets,
+  selectedWalletIds,
 }: {
   group: BudgetGroup
   total: number
   assigned: number
   onClose: () => void
   onSave: (changes: Partial<BudgetGroup>) => void
+  wallets: Wallet[]
+  selectedWalletIds: string[]
 }) {
   const [name, setName] = useState(group.name)
   const [amount, setAmount] = useState(group.amount ? formatPesoInput(String(group.amount / 100)) : '')
   const [icon, setIcon] = useState(group.icon ?? 'heart')
+  const [walletPercentages, setWalletPercentages] = useState<Record<string, number>>(
+    group.walletPercentages ?? Object.fromEntries(
+      selectedWalletIds.map((walletId) => [walletId, 100 / selectedWalletIds.length]),
+    ),
+  )
   const currentAmount = parsePesoToCentavos(amount) ?? 0
   const percentage = total > 0 ? Math.round((currentAmount / total) * 100) : 0
   const free = total - assigned - currentAmount
@@ -383,6 +497,36 @@ function GroupEditor({
             <button key={key} type="button" onClick={() => setIcon(key)} className={`flex h-12 w-12 items-center justify-center rounded-xl border ${icon === key ? 'border-[#278568] bg-[#278568]/10 text-[#278568]' : 'border-slate-200 text-slate-500'}`} aria-label={`Use ${key} icon`}><Icon size={19} /></button>
           ))}
         </div>
+        <p className="mt-5 text-sm font-medium text-[#202A35]">Wallet split for this group</p>
+        <div className="mt-2 space-y-2">
+          {selectedWalletIds.map((walletId) => {
+            const wallet = wallets.find((candidate) => candidate.id === walletId)
+            return (
+              <label key={walletId} className="flex items-center justify-between gap-3 text-sm text-slate-600">
+                <span>{wallet?.name ?? 'Wallet'}</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={walletPercentages[walletId] ?? 0}
+                  onChange={(event) => setWalletPercentages((current) => ({
+                    ...current,
+                    [walletId]: Number(event.target.value) || 0,
+                  }))}
+                  className="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-right"
+                  aria-label={`${wallet?.name ?? 'Wallet'} group percentage`}
+                />
+              </label>
+            )
+          })}
+        </div>
+        <p className={`mt-2 text-right text-xs ${
+          Object.values(walletPercentages).reduce((sum, percentage) => sum + percentage, 0) === 100
+            ? 'text-slate-500'
+            : 'text-red-600'
+        }`}>
+          {Object.values(walletPercentages).reduce((sum, percentage) => sum + percentage, 0)}% assigned
+        </p>
         <div className="mt-6 flex items-end justify-between">
           <p className="text-sm font-medium text-slate-500">Budget <strong className="text-blue-600">{percentage}%</strong></p>
           <p className="text-sm text-slate-500">of {formatPeso(total)}</p>
@@ -398,7 +542,19 @@ function GroupEditor({
             <button key={value} type="button" onClick={() => setAmount(formatPesoInput(String((total * value) / 100 / 100)))} className="rounded-xl border border-slate-200 py-3 font-semibold text-[#202A35] hover:border-[#278568]">{value}%</button>
           ))}
         </div>
-        <button type="button" onClick={() => onSave({ name: name.trim(), amount: currentAmount, icon })} disabled={!name.trim() || currentAmount <= 0 || free < 0} className="mt-5 w-full rounded-xl bg-[#278568] py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Done</button>
+        <button
+          type="button"
+          onClick={() => onSave({ name: name.trim(), amount: currentAmount, icon, walletPercentages })}
+          disabled={
+            !name.trim() ||
+            currentAmount <= 0 ||
+            free < 0 ||
+            Object.values(walletPercentages).reduce((sum, percentage) => sum + percentage, 0) !== 100
+          }
+          className="mt-5 w-full rounded-xl bg-[#278568] py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Done
+        </button>
       </div>
     </div>
   )

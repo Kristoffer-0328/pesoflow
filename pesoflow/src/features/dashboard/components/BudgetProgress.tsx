@@ -3,16 +3,20 @@ import { formatPeso } from '../../../utils/money'
 interface Props {
   limit: number
   spent: number
+  name?: string
 }
 
-export default function BudgetProgress({ limit, spent }: Props) {
+export default function BudgetProgress({ limit, spent, name }: Props) {
   const percent = limit > 0 ? (spent / limit) * 100 : 0
   const isOver = spent > limit
   const remaining = limit - spent
 
   return (
-    <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-      <h3 className="mb-4 text-sm font-semibold text-[#202A35]">Monthly Budget</h3>
+    <div className="border-2 border-[#19372D] bg-white p-5 shadow-[3px_3px_0_#A9BC91]">
+      <div className="mb-4 border-b-2 border-[#19372D] pb-3">
+        <p className="text-[10px] uppercase tracking-wider text-slate-400">Your spending plan</p>
+        <h3 className="mt-1 text-sm font-semibold text-[#202A35]">{name ?? 'Monthly Budget'}</h3>
+      </div>
 
       <div className="mb-2 flex items-end justify-between">
         <span className="text-2xl font-semibold text-[#202A35]">{formatPeso(spent)}</span>
