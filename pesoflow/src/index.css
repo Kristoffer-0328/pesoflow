@@ -21,21 +21,29 @@
   background: #F2F0DF;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
 
 * {
   border-radius: 0 !important;
 }
 
-body {
+html,
+body,
+#root {
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100%;
+}
+
+body {
   margin: 0;
   background-color: #F2F0DF;
   background-image:
     linear-gradient(rgba(25, 55, 45, 0.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(25, 55, 45, 0.045) 1px, transparent 1px);
   background-size: 8px 8px;
+  overscroll-behavior-x: none;
+  touch-action: manipulation;
 }
 
 button,
