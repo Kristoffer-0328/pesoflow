@@ -32,7 +32,6 @@ const desktopNav = [
 
 const mobileNav = [
   { to: '/transactions', label: 'Activity', icon: ArrowLeftRight },
-  { to: '/debts', label: 'Debts', icon: HandCoins },
   { to: '/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/budgets', label: 'Budgets', icon: PiggyBank },
   { to: '/goals', label: 'Goals', icon: Target },
@@ -214,20 +213,20 @@ export default function AppLayout() {
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-[#19372D] bg-[#FFFDF0] md:hidden">
-        <div className="mx-auto flex max-w-md items-center justify-around px-2 py-2">
+      <nav className="fixed inset-x-0 bottom-0 z-20 h-16 border-t-2 border-[#19372D] bg-[#FFFDF0] md:hidden">
+        <div className="mx-auto flex h-full max-w-md items-center justify-around px-2">
           {mobileNav.slice(0, 2).map((item) => (
             <MobileLink key={item.to} {...item} />
           ))}
-
-          <button
+              <button
             type="button"
             onClick={openAddMenu}
             aria-label="Add transaction"
-            className="-mt-7 flex h-12 w-12 items-center justify-center border-2 border-[#19372D] bg-[#4A9A70] text-white shadow-[3px_3px_0_#163F33]"
+            className="-translate-y-1/2 flex h-12 w-12 items-center justify-center border-2 border-[#19372D] bg-[#4A9A70] text-white shadow-[3px_3px_0_#163F33]"
           >
             <Plus size={22} />
           </button>
+      
 
           {mobileNav.slice(2).map((item) => (
             <MobileLink key={item.to} {...item} />

@@ -64,11 +64,11 @@ export default function AddTransactionMenu({
         onClick={onClose}
       />
 
-      {/* Origin point = FAB center. Tune bottom-[..] to match your nav. */}
+      {/* Origin point matches the mobile FAB center: nav center minus half the FAB height. */}
       <div
         role="dialog"
         aria-label="Choose what to add"
-        className="absolute bottom-[43px] left-1/2 h-0 w-0 md:bottom-24"
+        className="absolute bottom-14 left-1/2 h-0 w-0 md:bottom-24"
       >
         {actions.map(({ label, icon: Icon, color, type, home }, i) => {
           const angle = START_ANGLE + (i * (END_ANGLE - START_ANGLE)) / (actions.length - 1)
