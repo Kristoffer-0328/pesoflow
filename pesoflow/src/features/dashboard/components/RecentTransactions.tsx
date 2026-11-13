@@ -34,15 +34,20 @@ export default function RecentTransactions({ transactions, categories, wallets }
           {recent.map((t) => {
             const category = categories.find((c) => c.id === t.categoryId)
             const isTransfer = t.type === 'transfer'
-            const color = isTransfer ? '#94A3B8' : category?.color ?? '#94A3B8'
+            const isDebt = t.type === 'debt'
+            const color = isDebt ? '#64716c' : isTransfer ? '#94A3B8' : category?.color ?? '#94A3B8'
 
             const amountStyle =
-              t.type === 'income'
+              t.type === 'income' || (isDebt && t.debtDirection === 'borrowed' && t.debtAction === 'initial')
                 ? 'text-[#278568]'
-                : t.type === 'expense'
+                : t.type === 'expense' || isDebt
                   ? 'text-red-600'
                   : 'text-slate-500'
-            const sign = t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''
+            const debtInflow =
+              isDebt &&
+              ((t.debtDirection === 'borrowed' && t.debtAction === 'initial') ||
+                (t.debtDirection === 'lent' && t.debtAction === 'payment'))
+            const sign = t.type === 'income' || debtInflow ? '+' : t.type === 'expense' || isDebt ? '-' : ''
 
             return (
               <li key={t.id} className="flex items-center gap-3 border-b border-dashed border-[#A9BC91] py-3 last:border-b-0">
@@ -50,13 +55,15 @@ export default function RecentTransactions({ transactions, categories, wallets }
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold text-white"
                   style={{ backgroundColor: color }}
                 >
-                  {isTransfer ? '⇄' : (category?.name[0] ?? '?')}
+                  {isDebt ? '₱' : isTransfer ? '⇄' : (category?.name[0] ?? '?')}
                 </span>
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-[#202A35]">{t.description}</p>
                   <p className="truncate text-xs text-slate-400">
-                    {isTransfer
+                    {isDebt
+                      ? `${t.debtDirection === 'borrowed' ? 'Borrowed from' : 'Lent to'} ${t.debtPerson ?? 'Unknown'} · ${walletName(t.walletId)}`
+                      : isTransfer
                       ? `${walletName(t.fromWalletId)} → ${walletName(t.toWalletId)}`
                       : `${category?.name} · ${walletName(t.walletId)}`}
                     {' · '}

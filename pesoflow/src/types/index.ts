@@ -1,4 +1,6 @@
-export type TransactionType = 'income' | 'expense' | 'transfer'
+export type TransactionType = 'income' | 'expense' | 'transfer' | 'debt'
+export type DebtDirection = 'borrowed' | 'lent'
+export type DebtAction = 'initial' | 'payment'
 
 export interface Wallet {
   id: string
@@ -25,6 +27,10 @@ export interface Transaction {
   categoryId?: string // income / expense
   fromWalletId?: string // transfer
   toWalletId?: string // transfer
+  debtId?: string
+  debtDirection?: DebtDirection
+  debtAction?: DebtAction
+  debtPerson?: string
   description: string
   transactionDate: string // ISO string for now, Timestamp once services are connected
   isDeleted: boolean

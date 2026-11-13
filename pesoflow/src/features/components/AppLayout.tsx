@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   ArrowLeftRight,
   Home,
+  HandCoins,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -22,6 +23,7 @@ import AddTransactionModal from '../../features/transactions/components/addTrans
 const desktopNav = [
   { to: '/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { to: '/debts', label: 'Debts', icon: HandCoins },
   { to: '/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/budgets', label: 'Budgets', icon: PiggyBank },
   { to: '/goals', label: 'Goals', icon: Target },
@@ -30,6 +32,7 @@ const desktopNav = [
 
 const mobileNav = [
   { to: '/transactions', label: 'Activity', icon: ArrowLeftRight },
+  { to: '/debts', label: 'Debts', icon: HandCoins },
   { to: '/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/budgets', label: 'Budgets', icon: PiggyBank },
   { to: '/goals', label: 'Goals', icon: Target },

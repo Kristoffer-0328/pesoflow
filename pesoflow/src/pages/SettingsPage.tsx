@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AlertTriangle, Check, Save, Trash2 } from 'lucide-react'
 import { useAuth } from '../features/auth/hooks/useAuth'
 import { deleteAccount, updateUserSettings } from '../features/auth/services/authServices'
+import { canUsePinkTheme, pinkThemeStorageKey } from '../utils/theme'
 
 const inputClass =
   'w-full border-2 border-[#19372D] bg-[#F7F8FA] px-3 py-2.5 text-sm outline-none transition focus:border-[#247354]'
@@ -16,6 +17,9 @@ export default function SettingsPage() {
   const [confirmation, setConfirmation] = useState('')
   const [password, setPassword] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [pinkThemeEnabled, setPinkThemeEnabled] = useState(
+    () => localStorage.getItem(pinkThemeStorageKey) === 'true',
+  )
 
   if (!user) return null
 
@@ -46,6 +50,14 @@ export default function SettingsPage() {
   }
 
   const usesPassword = user.providerData.some((provider) => provider.providerId === 'password')
+  const canUseTheme = canUsePinkTheme(user.email)
+
+  const togglePinkTheme = () => {
+    const nextEnabled = !pinkThemeEnabled
+    setPinkThemeEnabled(nextEnabled)
+    localStorage.setItem(pinkThemeStorageKey, String(nextEnabled))
+    window.dispatchEvent(new Event('pesoflow-theme-change'))
+  }
 
   return (
     <div className="max-w-3xl space-y-7">
@@ -75,6 +87,28 @@ export default function SettingsPage() {
           {saving ? 'Saving...' : saved ? 'Saved' : 'Save changes'}
         </button>
       </section>
+
+      {canUseTheme && (
+        <section className="border-2 border-[#19372D] bg-white p-5 shadow-[4px_4px_0_#A9BC91]">
+          <h2 className="text-lg font-semibold text-[#19372D]">Appearance</h2>
+          <p className="mt-1 text-sm text-slate-500">Choose the color theme for your PesoFlow account.</p>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={pinkThemeEnabled}
+            onClick={togglePinkTheme}
+            className="mt-5 flex w-full items-center justify-between border-2 border-[#19372D] px-4 py-3 text-left"
+          >
+            <span>
+              <span className="block font-semibold text-[#19372D]">Pink theme</span>
+              <span className="mt-1 block text-sm text-slate-500">Use pink accents throughout the app.</span>
+            </span>
+            <span className={`h-6 w-11 p-1 transition ${pinkThemeEnabled ? 'bg-[#EC4899]' : 'bg-slate-300'}`}>
+              <span className={`block h-4 w-4 bg-white transition ${pinkThemeEnabled ? 'translate-x-5' : ''}`} />
+            </span>
+          </button>
+        </section>
+      )}
 
       <section className="border-2 border-red-800 bg-red-50 p-5">
         <div className="flex items-start gap-3">

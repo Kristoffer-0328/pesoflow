@@ -11,13 +11,14 @@ import {
   Filter,
   Search,
   Tags,
+  UsersRound,
   WalletCards,
 } from 'lucide-react'
 import { useUserData } from '../features/auth/hooks/userData'
 import type { Category, Transaction, Wallet } from '../types'
 import { formatPeso } from '../utils/money'
 
-type EntryFilter = 'all' | 'income' | 'expense' | 'transfer'
+type EntryFilter = 'all' | 'income' | 'expense' | 'transfer' | 'debt'
 
 const dayFormatter = new Intl.DateTimeFormat('en-PH', {
   weekday: 'short',
@@ -92,7 +93,7 @@ export default function TransactionsPage() {
         if (!query) return true
         const category = categories.find((item) => item.id === transaction.categoryId)
         const wallet = wallets.find((item) => item.id === transaction.walletId)
-        return [transaction.description, category?.name, wallet?.name]
+        return [transaction.description, transaction.debtPerson, category?.name, wallet?.name]
           .filter(Boolean)
           .some((value) => value!.toLowerCase().includes(query))
       })
@@ -254,6 +255,7 @@ export default function TransactionsPage() {
               ['expense', 'Expenses'],
               ['income', 'Income'],
               ['transfer', 'Transfers'],
+              ['debt', 'Debt'],
             ]}
           />
           <FilterSelect
@@ -359,16 +361,25 @@ function TransactionRow({
   wallets: Wallet[]
 }) {
   const isTransfer = transaction.type === 'transfer'
+  const isDebt = transaction.type === 'debt'
   const walletName = (id?: string) => wallets.find((wallet) => wallet.id === id)?.name ?? 'Unknown wallet'
-  const Icon = isTransfer
+  const Icon = isDebt
+    ? UsersRound
+    : isTransfer
     ? ArrowLeftRight
     : transaction.type === 'income'
       ? ArrowDownLeft
       : ArrowUpRight
   const color =
-    isTransfer ? '#64748B' : transaction.type === 'income' ? '#278568' : category?.color ?? '#F59E0B'
-  const amountPrefix = transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''
-  const subtitle = isTransfer
+    isDebt ? '#64716c' : isTransfer ? '#64748B' : transaction.type === 'income' ? '#278568' : category?.color ?? '#F59E0B'
+  const debtInflow =
+    isDebt &&
+    ((transaction.debtDirection === 'borrowed' && transaction.debtAction === 'initial') ||
+      (transaction.debtDirection === 'lent' && transaction.debtAction === 'payment'))
+  const amountPrefix = transaction.type === 'income' || debtInflow ? '+' : transaction.type === 'expense' || isDebt ? '-' : ''
+  const subtitle = isDebt
+    ? `${transaction.debtAction === 'payment' ? 'Payment' : transaction.debtDirection === 'borrowed' ? 'Borrowed from' : 'Lent to'} ${transaction.debtPerson ?? 'Unknown'} · ${walletName(transaction.walletId)}`
+    : isTransfer
     ? `${walletName(transaction.fromWalletId)} → ${walletName(transaction.toWalletId)}`
     : `${category?.name ?? 'Uncategorized'} · ${walletName(transaction.walletId)}`
 
@@ -382,15 +393,16 @@ function TransactionRow({
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-[#202A35]">
-          {transaction.description || (isTransfer ? 'Wallet transfer' : category?.name ?? 'Transaction')}
+          {transaction.description ||
+            (isDebt ? 'Debt activity' : isTransfer ? 'Wallet transfer' : category?.name ?? 'Transaction')}
         </p>
         <p className="truncate text-sm text-slate-400">{subtitle}</p>
       </div>
       <p
         className={`shrink-0 text-base font-semibold ${
-          transaction.type === 'income'
+          transaction.type === 'income' || debtInflow
             ? 'text-[#278568]'
-            : transaction.type === 'expense'
+            : transaction.type === 'expense' || isDebt
               ? 'text-[#202A35]'
               : 'text-slate-500'
         }`}

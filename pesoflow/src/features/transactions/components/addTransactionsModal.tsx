@@ -17,6 +17,7 @@ const typeOptions: { value: TransactionType; label: string; active: string }[] =
   { value: 'expense', label: 'Expense', active: 'bg-red-600 text-white' },
   { value: 'income', label: 'Income', active: 'bg-[#278568] text-white' },
   { value: 'transfer', label: 'Transfer', active: 'bg-slate-700 text-white' },
+  { value: 'debt', label: 'Debt', active: 'bg-[#64716c] text-white' },
 ]
 
 export default function AddTransactionModal({
@@ -36,6 +37,8 @@ export default function AddTransactionModal({
   const [categoryId, setCategoryId] = useState('')
   const [date, setDate] = useState(() => toDateInputValue(new Date()))
   const [description, setDescription] = useState('')
+  const [debtDirection, setDebtDirection] = useState<'borrowed' | 'lent'>('borrowed')
+  const [debtPerson, setDebtPerson] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -82,8 +85,12 @@ export default function AddTransactionModal({
         setError('Choose two different wallets.')
         return
       }
-    } else if (!selectedCategoryId) {
+    } else if (type !== 'debt' && !selectedCategoryId) {
       setError('Select a category.')
+      return
+    }
+    if (type === 'debt' && !debtPerson.trim()) {
+      setError('Enter the person or entity involved.')
       return
     }
     if (!date) {
@@ -102,7 +109,16 @@ export default function AddTransactionModal({
     const input: NewTransactionInput =
       type === 'transfer'
         ? { ...base, type, fromWalletId: fromId, toWalletId: toId }
-        : { ...base, type, walletId: fromId, categoryId: selectedCategoryId }
+        : type === 'debt'
+          ? {
+              ...base,
+              type,
+              walletId: fromId,
+              debtDirection,
+              debtAction: 'initial',
+              debtPerson: debtPerson.trim(),
+            }
+          : { ...base, type, walletId: fromId, categoryId: selectedCategoryId }
 
     setError('')
     setSaving(true)
@@ -116,6 +132,7 @@ export default function AddTransactionModal({
   }
 
   const isTransfer = type === 'transfer'
+  const isDebt = type === 'debt'
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
@@ -152,7 +169,7 @@ export default function AddTransactionModal({
         ) : (
           <form onSubmit={handleSubmit} autoComplete="off">
             {/* Type toggle */}
-            <div className="mb-5 grid grid-cols-3 gap-1 rounded-xl bg-[#E9EDF2] p-1">
+            <div className="mb-5 grid grid-cols-2 gap-1 rounded-xl bg-[#E9EDF2] p-1 sm:grid-cols-4">
               {typeOptions.map((option) => (
                 <button
                   key={option.value}
@@ -240,6 +257,34 @@ export default function AddTransactionModal({
                   </p>
                 )}
               </>
+            ) : isDebt ? (
+              <>
+                <label className={labelClass} htmlFor="debtDirection">
+                  Debt direction
+                </label>
+                <select
+                  id="debtDirection"
+                  value={debtDirection}
+                  onChange={(e) => setDebtDirection(e.target.value as 'borrowed' | 'lent')}
+                  className={`${inputClass} mb-4`}
+                >
+                  <option value="borrowed">I borrowed money</option>
+                  <option value="lent">I lent money</option>
+                </select>
+
+                <label className={labelClass} htmlFor="debtPerson">
+                  Person or entity
+                </label>
+                <input
+                  id="debtPerson"
+                  type="text"
+                  maxLength={80}
+                  value={debtPerson}
+                  onChange={(e) => setDebtPerson(e.target.value)}
+                  placeholder="e.g. Alex or ABC Lending"
+                  className={`${inputClass} mb-4`}
+                />
+              </>
             ) : (
               <>
                 <label className={labelClass} htmlFor="category">
@@ -283,7 +328,9 @@ export default function AddTransactionModal({
               maxLength={100}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={isTransfer ? 'e.g. Top up GCash' : 'e.g. Lunch at Jollibee'}
+              placeholder={
+                isTransfer ? 'e.g. Top up GCash' : isDebt ? 'e.g. Emergency cash' : 'e.g. Lunch at Jollibee'
+              }
               className={`${inputClass} mb-6`}
             />
 

@@ -28,6 +28,8 @@ phase. The application currently includes:
 - Wallet management with active wallet cards, balance calculation, wallet
   creation, provider selection, and initial balances.
 - Transaction creation for income, expenses, and wallet transfers.
+- Debt tracking for borrowed/lent money, immutable payment history, remaining
+  balances, and settled debt records.
 - Transaction validation for positive amounts, required wallets/categories,
   different transfer wallets, and transaction dates.
 - Weekly transaction activity view with:
@@ -110,7 +112,7 @@ color so that balances, income, expenses, and budget status remain the focus.
 | Firebase data layer | In progress | Live Firestore reads and create operations are connected |
 | Wallets | In progress | Create and view balances are available; edit/archive/transfer UX remains |
 | Categories | Partial | Default categories are created and used; category management UI remains |
-| Transactions | In progress | Create income, expense, and transfer records; edit/archive/delete remains |
+| Transactions | In progress | Create income, expense, transfer, and debt records; edit/archive/delete remains |
 | Dashboard | Done for current MVP scope | Live summaries, wallet balances, breakdown, budget progress, recent activity |
 | Budgets | In progress | Default and custom plans are available; broader monthly/category tracking remains |
 | Reports | Not started | A dedicated reports and analytics page is still needed |

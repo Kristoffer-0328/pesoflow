@@ -1,4 +1,4 @@
-import { addDoc, collection, onSnapshot, query, serverTimestamp } from 'firebase/firestore'
+import { addDoc, collection, doc, onSnapshot, query, serverTimestamp, updateDoc } from 'firebase/firestore'
 import type { Unsubscribe } from 'firebase/firestore'
 import { db } from '../../../lib/firebase'
 import type { Wallet } from '../../../types'
@@ -45,6 +45,13 @@ export async function addWallet(userId: string, input: NewWalletInput): Promise<
     ...input,
     isActive: true,
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export async function updateWalletColor(userId: string, walletId: string, color: string): Promise<void> {
+  await updateDoc(doc(db, 'users', userId, 'wallets', walletId), {
+    color,
     updatedAt: serverTimestamp(),
   })
 }

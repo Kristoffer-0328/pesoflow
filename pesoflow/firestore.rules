@@ -8,10 +8,25 @@ service cloud.firestore {
     }
 
     function validTransaction(d) {
-      return d.type in ['income', 'expense', 'transfer']
-        && d.amount is int
+      return d.amount is int
         && d.amount > 0
-        && d.isDeleted is bool;
+        && d.isDeleted is bool
+        && (
+          d.type in ['income', 'expense', 'transfer']
+          || validDebt(d)
+        );
+    }
+
+    function validDebt(d) {
+      return d.type == 'debt'
+        && d.walletId is string
+        && d.walletId.size() > 0
+        && d.debtId is string
+        && d.debtId.size() > 0
+        && d.debtDirection in ['borrowed', 'lent']
+        && d.debtAction in ['initial', 'payment']
+        && d.debtPerson is string
+        && d.debtPerson.size() > 0;
     }
 
     match /users/{userId} {

@@ -5,7 +5,7 @@ const isSameMonth = (iso: string, ref: Date) => {
   return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth()
 }
 
-/** Initial + income - expenses + transfers in - transfers out */
+/** Initial + income - expenses + transfers in - transfers out + debt effects */
 export function getWalletBalance(wallet: Wallet, transactions: Transaction[]): number {
   return transactions
     .filter((t) => !t.isDeleted)
@@ -15,6 +15,10 @@ export function getWalletBalance(wallet: Wallet, transactions: Transaction[]): n
       if (t.type === 'transfer') {
         if (t.toWalletId === wallet.id) balance += t.amount
         if (t.fromWalletId === wallet.id) balance -= t.amount
+      }
+      if (t.type === 'debt' && t.walletId === wallet.id) {
+        const borrowedEffect = t.debtDirection === 'borrowed' ? 1 : -1
+        balance += t.debtAction === 'payment' ? -borrowedEffect * t.amount : borrowedEffect * t.amount
       }
       return balance
     }, wallet.initialBalance)

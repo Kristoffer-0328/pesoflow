@@ -24,7 +24,7 @@ const actions: Action[] = [
   { label: 'Home', icon: Home, color: 'bg-[#247354]', home: true },
   { label: 'Transfer', icon: ArrowLeftRight, color: 'bg-[#3185bd]', type: 'transfer' },
   { label: 'Expense', icon: ReceiptText, color: 'bg-[#d4483b]', type: 'expense' },
-  { label: 'Debt', icon: UsersRound, color: 'bg-[#64716c]' },
+  { label: 'Debt', icon: UsersRound, color: 'bg-[#64716c]', type: 'debt' },
 ]
 
 const RADIUS = 145 // px from FAB center

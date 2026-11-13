@@ -1,5 +1,16 @@
 import type { Wallet } from '../types'
 
+export const walletColorOptions = [
+  { name: 'Green', value: '#278568' },
+  { name: 'Blue', value: '#2474B5' },
+  { name: 'Purple', value: '#6C3CE9' },
+  { name: 'Orange', value: '#EA5F00' },
+  { name: 'Red', value: '#C8102E' },
+  { name: 'Pink', value: '#EC4899' },
+  { name: 'Teal', value: '#00A6A6' },
+  { name: 'Slate', value: '#64748B' },
+] as const
+
 const providerColors: Record<string, string> = {
   gcash: '#007DFE',
   maya: '#00A86B',
@@ -38,6 +49,6 @@ export function getWalletProviderColor(provider: string, fallback = '#278568'): 
 
 export function getWalletCardColors(wallet: Wallet): [string, string] {
   const provider = wallet.provider || wallet.name
-  const color = provider ? getWalletProviderColor(provider, wallet.color) : wallet.color || '#278568'
+  const color = wallet.color || (provider ? getWalletProviderColor(provider) : '#278568')
   return [color, color]
 }

@@ -1,10 +1,11 @@
 import {
-  addDoc,
   collection,
+  doc,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
 } from 'firebase/firestore'
 import type { Unsubscribe } from 'firebase/firestore'
@@ -38,6 +39,10 @@ export function subscribeToTransactions(
             categoryId: data.categoryId,
             fromWalletId: data.fromWalletId,
             toWalletId: data.toWalletId,
+            debtId: data.debtId,
+            debtDirection: data.debtDirection,
+            debtAction: data.debtAction,
+            debtPerson: data.debtPerson,
             description: data.description ?? '',
             transactionDate: toISO(data.transactionDate),
             isDeleted: data.isDeleted ?? false,
@@ -66,6 +71,14 @@ export type NewTransactionInput =
       fromWalletId: string
       toWalletId: string
     })
+  | (BaseInput & {
+      type: 'debt'
+      walletId: string
+      debtId?: string
+      debtDirection: 'borrowed' | 'lent'
+      debtAction: 'initial' | 'payment'
+      debtPerson: string
+    })
 
 /**
  * Creates one transaction document. A transfer is a single record, so wallet
@@ -75,9 +88,11 @@ export type NewTransactionInput =
  */
 export async function addTransaction(userId: string, input: NewTransactionInput): Promise<void> {
   const { transactionDate, ...fields } = input
+  const transactionRef = doc(collection(db, 'users', userId, 'transactions'))
 
-  await addDoc(collection(db, 'users', userId, 'transactions'), {
+  await setDoc(transactionRef, {
     ...fields,
+    ...(input.type === 'debt' && !input.debtId ? { debtId: transactionRef.id } : {}),
     transactionDate: Timestamp.fromDate(transactionDate),
     isDeleted: false,
     createdAt: serverTimestamp(),

@@ -104,3 +104,63 @@ textarea:focus {
   color: #FFFDF0;
   background: #247354;
 }
+
+[data-theme='pink'] {
+  --color-sand-bg: #FCE7F3;
+  --color-sand-card: #FFF5FA;
+  --color-sand-border: #831843;
+  --color-sand-ink: #831843;
+  --color-sand-muted: #9D5274;
+  --color-sand-primary: #DB2777;
+  --color-sand-accent: #EC4899;
+  --color-sand-income: #DB2777;
+  --color-sand-expense: #F472B6;
+  --color-sand-warning: #F9A8D4;
+  color: #831843;
+  background-color: #FCE7F3;
+}
+
+[data-theme='pink'] body {
+  background-color: #FCE7F3;
+  background-image:
+    linear-gradient(rgba(131, 24, 67, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(131, 24, 67, 0.045) 1px, transparent 1px);
+}
+
+[data-theme='pink'] [class~="bg-[#278568]"],
+[data-theme='pink'] [class~="bg-[#247354]"] {
+  background-color: #DB2777 !important;
+}
+
+[data-theme='pink'] [class~="hover:bg-[#1f6e55]"]:hover {
+  background-color: #BE185D !important;
+}
+
+[data-theme='pink'] [class~="text-[#278568]"],
+[data-theme='pink'] [class~="text-[#247354]"] {
+  color: #DB2777 !important;
+}
+
+[data-theme='pink'] [class~="border-[#19372D]"],
+[data-theme='pink'] [class~="border-[#247354]"] {
+  border-color: #831843 !important;
+}
+
+[data-theme='pink'] [class~="text-[#19372D]"] {
+  color: #831843 !important;
+}
+
+[data-theme='pink'] [class~="shadow-[4px_4px_0_#A9BC91]"] {
+  --tw-shadow: 4px 4px 0 #F9A8D4 !important;
+}
+
+[data-theme='pink'] input:focus,
+[data-theme='pink'] select:focus,
+[data-theme='pink'] textarea:focus {
+  border-color: #DB2777 !important;
+  outline-color: rgba(219, 39, 119, 0.25);
+}
+
+[data-theme='pink'] ::selection {
+  background: #DB2777;
+}

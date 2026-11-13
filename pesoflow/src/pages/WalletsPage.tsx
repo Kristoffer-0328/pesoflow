@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { ArrowLeft, Banknote, ChevronLeft, ChevronRight, CreditCard, Plus, Search, Smartphone, X } from 'lucide-react'
+import { ArrowLeft, Banknote, ChevronLeft, ChevronRight, CreditCard, Pencil, Plus, Search, Smartphone, X } from 'lucide-react'
 import { useAuth } from '../features/auth/hooks/useAuth'
-import { addWallet } from '../features/auth/services/walletServices'
+import { addWallet, updateWalletColor } from '../features/auth/services/walletServices'
 import type { Wallet } from '../types'
 import { getWalletBalance } from '../utils/calculation'
 import { formatPeso, parsePesoToCentavos } from '../utils/money'
-import { getWalletCardColors, getWalletProviderColor } from '../utils/walletColors'
+import { getWalletCardColors, getWalletProviderColor, walletColorOptions } from '../utils/walletColors'
 import { useUserData } from '../features/auth/hooks/userData'
 import { getMonthKey } from '../utils/date'
 
@@ -49,6 +49,7 @@ export default function WalletsPage() {
   const { user } = useAuth()
   const { wallets, transactions, loading, error } = useUserData(getMonthKey(new Date()))
   const [modalOpen, setModalOpen] = useState(false)
+  const [editingWallet, setEditingWallet] = useState<Wallet | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
   if (error) {
@@ -114,6 +115,7 @@ export default function WalletsPage() {
                 activeIndex={selectedIndex}
                 total={activeWallets.length}
                 onSelect={() => setActiveIndex(index)}
+                onEdit={() => setEditingWallet(wallet)}
               />
             ))}
           </div>
@@ -145,6 +147,13 @@ export default function WalletsPage() {
       )}
 
       {modalOpen && user && <AddWalletModal userId={user.uid} onClose={() => setModalOpen(false)} />}
+      {editingWallet && user && (
+        <EditWalletColorModal
+          userId={user.uid}
+          wallet={editingWallet}
+          onClose={() => setEditingWallet(null)}
+        />
+      )}
     </div>
   )
 }
@@ -156,6 +165,7 @@ function WalletCard({
   activeIndex,
   total,
   onSelect,
+  onEdit,
 }: {
   wallet: Wallet
   balance: number
@@ -163,6 +173,7 @@ function WalletCard({
   activeIndex: number
   total: number
   onSelect: () => void
+  onEdit: () => void
 }) {
   const offset = (index - activeIndex + total) % total
   const isActive = offset === 0
@@ -170,35 +181,47 @@ function WalletCard({
   const cardColors = getWalletCardColors(wallet)
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-label={`Select ${wallet.name}`}
-      className={`absolute inset-x-0 top-0 mx-auto h-[280px] w-[92%] max-w-[570px] overflow-hidden rounded-[22px] text-left text-white shadow-[0_10px_18px_rgba(15,23,42,0.22)] transition-all duration-300 ${
+    <div
+      className={`absolute inset-x-0 top-0 mx-auto h-[280px] w-[92%] max-w-[570px] transition-all duration-300 ${
         isVisible ? 'visible' : 'invisible'
       }`}
       style={{
-        background: `linear-gradient(135deg, ${cardColors[0]}, ${cardColors[1]})`,
         transform: `translateY(${offset * -30}px) scale(${1 - offset * 0.035})`,
         zIndex: total - offset,
         opacity: isActive ? 1 : 0.72,
       }}
     >
-      <span className="absolute -bottom-12 -right-2 text-[170px] font-black leading-none tracking-[-0.12em] text-white/10">
-        {getBrandMark(wallet)}
-      </span>
-      <span className="absolute left-7 top-7 flex h-12 w-12 items-center justify-center rounded-lg bg-white/15 text-sm font-black ring-1 ring-white/30">
-        {getBrandMark(wallet).slice(0, 3)}
-      </span>
-      <span className="absolute right-7 top-8 rounded-sm bg-white/15 px-3 py-2 text-xs font-bold uppercase tracking-wider ring-1 ring-white/20">
-        {wallet.type === 'e-wallet' ? 'E-wallet' : wallet.type === 'credit-card' ? 'Credit card' : 'Bank'}
-      </span>
-      <span className="absolute left-7 top-[84px] text-lg font-semibold sm:text-xl">{wallet.name}</span>
-      {wallet.provider && wallet.provider !== wallet.name && (
-        <span className="absolute left-7 top-[116px] text-xs text-white/70">{wallet.provider}</span>
-      )}
-      <span className="absolute bottom-8 left-7 text-2xl font-semibold sm:text-3xl">{formatPeso(balance)}</span>
-    </button>
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-label={`Select ${wallet.name}`}
+        className="absolute inset-0 overflow-hidden rounded-[22px] text-left text-white shadow-[0_10px_18px_rgba(15,23,42,0.22)]"
+        style={{ background: `linear-gradient(135deg, ${cardColors[0]}, ${cardColors[1]})` }}
+      >
+        <span className="absolute -bottom-12 -right-2 text-[170px] font-black leading-none tracking-[-0.12em] text-white/10">
+          {getBrandMark(wallet)}
+        </span>
+        <span className="absolute left-7 top-7 flex h-12 w-12 items-center justify-center rounded-lg bg-white/15 text-sm font-black ring-1 ring-white/30">
+          {getBrandMark(wallet).slice(0, 3)}
+        </span>
+        <span className="absolute right-7 top-8 rounded-sm bg-white/15 px-3 py-2 text-xs font-bold uppercase tracking-wider ring-1 ring-white/20">
+          {wallet.type === 'e-wallet' ? 'E-wallet' : wallet.type === 'credit-card' ? 'Credit card' : 'Bank'}
+        </span>
+        <span className="absolute left-7 top-[84px] text-lg font-semibold sm:text-xl">{wallet.name}</span>
+        {wallet.provider && wallet.provider !== wallet.name && (
+          <span className="absolute left-7 top-[116px] text-xs text-white/70">{wallet.provider}</span>
+        )}
+        <span className="absolute bottom-8 left-7 text-2xl font-semibold sm:text-3xl">{formatPeso(balance)}</span>
+      </button>
+      <button
+        type="button"
+        onClick={onEdit}
+        aria-label={`Edit ${wallet.name} color`}
+        className="absolute right-5 top-5 z-10 rounded-lg bg-white/20 p-2 text-white transition hover:bg-white/35"
+      >
+        <Pencil size={16} />
+      </button>
+    </div>
   )
 }
 
@@ -213,12 +236,83 @@ function getBrandMark(wallet: Pick<Wallet, 'provider' | 'name'>) {
   return name.replace(/[^A-Z]/g, '').slice(0, 3) || '₱'
 }
 
+function EditWalletColorModal({
+  userId,
+  wallet,
+  onClose,
+}: {
+  userId: string
+  wallet: Wallet
+  onClose: () => void
+}) {
+  const [color, setColor] = useState(wallet.color || walletColorOptions[0].value)
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    setSaving(true)
+    setError('')
+    try {
+      await updateWalletColor(userId, wallet.id, color)
+      onClose()
+    } catch {
+      setError('Could not update the wallet color. Please try again.')
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
+      <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} aria-hidden="true" />
+      <form
+        onSubmit={handleSubmit}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Edit ${wallet.name} color`}
+        className="relative w-full max-w-md rounded-t-3xl bg-white p-6 shadow-xl md:rounded-3xl"
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-slate-400">Wallet color</p>
+            <h2 className="text-lg font-semibold text-[#202A35]">{wallet.name}</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-2 text-slate-500 hover:bg-[#E9EDF2]">
+            <X size={18} />
+          </button>
+        </div>
+        {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>}
+        <div className="mb-6 flex flex-wrap gap-3" role="radiogroup" aria-label="Wallet color">
+          {walletColorOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-label={option.name}
+              aria-checked={color === option.value}
+              onClick={() => setColor(option.value)}
+              className={`h-10 w-10 rounded-full transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                color === option.value ? 'ring-2 ring-[#202A35] ring-offset-2' : 'hover:scale-105'
+              }`}
+              style={{ backgroundColor: option.value }}
+            />
+          ))}
+        </div>
+        <button type="submit" disabled={saving} className="w-full rounded-xl bg-[#278568] py-3 text-sm font-semibold text-white hover:bg-[#1f6e55] disabled:cursor-not-allowed disabled:opacity-60">
+          {saving ? 'Saving...' : 'Save color'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
 function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => void }) {
   const [step, setStep] = useState(1)
   const [type, setType] = useState<WalletType | null>(null)
   const [provider, setProvider] = useState('')
   const [name, setName] = useState('')
   const [balance, setBalance] = useState('')
+  const [color, setColor] = useState('#278568')
   const [search, setSearch] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -226,6 +320,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
   const handleTypeChange = (nextType: WalletType) => {
     setType(nextType)
     setProvider(nextType === 'cash' ? 'Cash' : '')
+    setColor('#278568')
     setStep(nextType === 'cash' ? 3 : 2)
     setSearch('')
     setError('')
@@ -233,6 +328,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
 
   const handleProviderChange = (nextProvider: string) => {
     setProvider(nextProvider)
+    setColor(getWalletProviderColor(nextProvider))
     setStep(3)
     setError('')
   }
@@ -255,7 +351,7 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
         type,
         provider: type === 'cash' ? undefined : provider,
         initialBalance,
-        color: type === 'cash' ? '#278568' : getWalletProviderColor(provider),
+        color,
       })
       onClose()
     } catch {
@@ -332,6 +428,25 @@ function AddWalletModal({ userId, onClose }: { userId: string; onClose: () => vo
               <span className="absolute inset-y-0 left-3 flex items-center text-lg font-semibold text-slate-400">₱</span>
               <input id="initial-balance" type="number" min="0" step="0.01" value={balance} onChange={(event) => setBalance(event.target.value)} inputMode="decimal" placeholder="0.00" className={`${inputClass} pl-8`} />
             </div>
+            <fieldset className="mb-6">
+              <legend className={labelClass}>Wallet color</legend>
+              <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Wallet color">
+                {walletColorOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-label={option.name}
+                    aria-checked={color === option.value}
+                    onClick={() => setColor(option.value)}
+                    className={`h-9 w-9 rounded-full transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      color === option.value ? 'ring-2 ring-[#202A35] ring-offset-2' : 'hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: option.value }}
+                  />
+                ))}
+              </div>
+            </fieldset>
             <button type="submit" disabled={saving} className="w-full rounded-xl bg-[#278568] py-3 text-sm font-semibold text-white hover:bg-[#1f6e55] disabled:cursor-not-allowed disabled:opacity-60">
               {saving ? 'Saving...' : 'Save wallet'}
             </button>
